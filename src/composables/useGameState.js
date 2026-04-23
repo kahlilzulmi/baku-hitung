@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -9,73 +9,83 @@ function randInt(min, max) {
 }
 
 /**
- * Determine difficulty tier based on total combined score.
- * Tier 0 – score  0-4  : single-digit + / -
- * Tier 1 – score  5-9  : single-digit + / - / ×  (small multipliers)
- * Tier 2 – score 10-19 : two-digit  + / -  and small ×
- * Tier 3 – score 20-34 : two-digit  + / - / ×  and easy ÷
- * Tier 4 – score 35+   : two-digit  all-ops with larger numbers
+ * Generate a question for the given level (1-based).
+ *
+ * Level  1-3  (Kindergarten/Early Elementary):
+ *   Single-digit + and − only. Answers always ≥ 1.
+ * Level  4-7  (Upper Elementary):
+ *   2-digit + / −, single-digit ×
+ * Level  8-12 (Middle/High School):
+ *   2-digit ×, ÷ (whole quotients), (A + B) × C
+ * Level 13+   (College/Extreme):
+ *   3-digit ops, squares (n²), (A ÷ B) × C, large ×
+ *   Complexity scales infinitely with level.
  */
-function getTier(totalScore) {
-  if (totalScore < 5)  return 0
-  if (totalScore < 10) return 1
-  if (totalScore < 20) return 2
-  if (totalScore < 35) return 3
-  return 4
-}
+function generateQuestion(level) {
+  let text, answer
 
-/**
- * Generate a question object { text, answer } appropriate for the tier.
- */
-function generateQuestion(tier) {
-  let a, b, op, answer, text
-
-  const ops = (() => {
-    if (tier === 0) return ['+', '-']
-    if (tier === 1) return ['+', '-', '×']
-    if (tier === 2) return ['+', '-', '×']
-    return ['+', '-', '×', '÷']
-  })()
-
-  op = ops[randInt(0, ops.length - 1)]
-
-  if (op === '+') {
-    if (tier <= 1) {
-      a = randInt(1, 9); b = randInt(1, 9)
-    } else if (tier === 2) {
-      a = randInt(10, 49); b = randInt(1, 20)
+  if (level <= 3) {
+    if (randInt(0, 1) === 0) {
+      const a = randInt(1, 9); const b = randInt(1, 9)
+      text = `${a} + ${b}`; answer = a + b
     } else {
-      a = randInt(10, 99); b = randInt(10, 50)
+      const a = randInt(2, 9); const b = randInt(1, a - 1)
+      text = `${a} − ${b}`; answer = a - b
     }
-    answer = a + b
-  } else if (op === '-') {
-    if (tier <= 1) {
-      a = randInt(2, 18); b = randInt(1, a - 1) // ensure answer >= 1
-    } else if (tier === 2) {
-      a = randInt(21, 60); b = randInt(1, Math.min(20, a - 1))
+  } else if (level <= 7) {
+    const r = randInt(0, 2)
+    if (r === 0) {
+      const a = randInt(10, 60); const b = randInt(10, 40)
+      text = `${a} + ${b}`; answer = a + b
+    } else if (r === 1) {
+      const a = randInt(20, 90); const b = randInt(10, a - 1)
+      text = `${a} − ${b}`; answer = a - b
     } else {
-      a = randInt(21, 99); b = randInt(10, a - 1)
+      const a = randInt(2, 9); const b = randInt(2, 9)
+      text = `${a} × ${b}`; answer = a * b
     }
-    answer = a - b
-  } else if (op === '×') {
-    if (tier === 1) {
-      a = randInt(2, 5); b = randInt(2, 5)
-    } else if (tier === 2) {
-      a = randInt(2, 9); b = randInt(2, 9)
+  } else if (level <= 12) {
+    const r = randInt(0, 2)
+    if (r === 0) {
+      const a = randInt(3, 15); const b = randInt(3, 15)
+      text = `${a} × ${b}`; answer = a * b
+    } else if (r === 1) {
+      const d = randInt(2, 12); const q = randInt(2, 12)
+      text = `${d * q} ÷ ${d}`; answer = q
     } else {
-      a = randInt(2, 12); b = randInt(2, 12)
+      const c = randInt(2, 9); const a = randInt(2, 9); const b = randInt(2, 9)
+      text = `(${a} + ${b}) × ${c}`; answer = (a + b) * c
     }
-    answer = a * b
   } else {
-    // division – always whole numbers
-    if (tier === 3) {
-      b = randInt(2, 9); answer = randInt(2, 9); a = b * answer
+    // Level 13+ – scale with level
+    const extra = level - 12
+    const r = randInt(0, 3)
+    if (r === 0) {
+      const cap = Math.min(900, 100 + extra * 30)
+      const a = randInt(100, cap)
+      if (randInt(0, 1) === 0) {
+        const b = randInt(10, Math.min(200, Math.floor(cap / 2)))
+        text = `${a} + ${b}`; answer = a + b
+      } else {
+        const b = randInt(10, a - 1)
+        text = `${a} − ${b}`; answer = a - b
+      }
+    } else if (r === 1) {
+      const maxBase = Math.min(25, 5 + extra)
+      const a = randInt(5, maxBase)
+      text = `${a}²`; answer = a * a
+    } else if (r === 2) {
+      const d = randInt(2, 12)
+      const q = randInt(2, Math.min(20, 3 + extra))
+      const c = randInt(2, Math.min(12, 3 + extra))
+      text = `(${d * q} ÷ ${d}) × ${c}`; answer = q * c
     } else {
-      b = randInt(2, 12); answer = randInt(2, 12); a = b * answer
+      const cap = Math.min(50, 12 + extra * 2)
+      const a = randInt(10, cap); const b = randInt(10, Math.min(30, cap))
+      text = `${a} × ${b}`; answer = a * b
     }
   }
 
-  text = `${a} ${op} ${b}`
   return { text, answer: String(answer) }
 }
 
@@ -83,43 +93,71 @@ function generateQuestion(tier) {
 // Composable
 // ---------------------------------------------------------------------------
 
+const MOMENTUM_WIN = 5
+
 export function useGameState() {
-  const score1 = ref(0)
-  const score2 = ref(0)
+  const level = ref(1)
+  // +5 = Player 1 wins round, -5 = Player 2 wins round
+  const momentum = ref(0)
+
   const input1 = ref('')
   const input2 = ref('')
 
-  const totalScore = computed(() => score1.value + score2.value)
-  const tier = computed(() => getTier(totalScore.value))
+  // Freeze all keypad input during the 1.5 s transition window
+  const frozen = ref(false)
 
-  const currentQuestion = ref(generateQuestion(tier.value))
+  // Which player just answered correctly (null | 1 | 2)
+  const scoredPlayer = ref(null)
 
-  // Flash feedback state (brief correct-answer highlight)
-  const flash1 = ref(false)
-  const flash2 = ref(false)
+  // Which player just won the round (null | 1 | 2) – set simultaneously with frozen
+  const roundWinner = ref(null)
+
+  // Shake animation triggers for each player's answer box
+  const shake1 = ref(false)
+  const shake2 = ref(false)
+
+  const currentQuestion = ref(generateQuestion(1))
 
   function newQuestion() {
-    currentQuestion.value = generateQuestion(tier.value)
+    currentQuestion.value = generateQuestion(level.value)
     input1.value = ''
     input2.value = ''
+    frozen.value = false
+    scoredPlayer.value = null
+  }
+
+  function triggerShake(player) {
+    if (player === 1) {
+      shake1.value = false
+      // Force DOM to re-register the class on next tick
+      setTimeout(() => { shake1.value = true }, 0)
+      setTimeout(() => { shake1.value = false }, 600) // slightly longer than 0.5s CSS animation
+    } else {
+      shake2.value = false
+      setTimeout(() => { shake2.value = true }, 0)
+      setTimeout(() => { shake2.value = false }, 600) // slightly longer than 0.5s CSS animation
+    }
   }
 
   function appendDigit(player, digit) {
+    if (frozen.value) return
+    // +1 extra char beyond the correct answer so a same-length wrong entry triggers the shake
+    const maxLen = currentQuestion.value.answer.length + 1
     if (player === 1) {
-      // Prevent leading zeros and overly long inputs
       if (digit === '0' && input1.value === '') return
-      if (input1.value.length >= 6) return
+      if (input1.value.length >= maxLen) return
       input1.value += digit
       checkAnswer(1)
     } else {
       if (digit === '0' && input2.value === '') return
-      if (input2.value.length >= 6) return
+      if (input2.value.length >= maxLen) return
       input2.value += digit
       checkAnswer(2)
     }
   }
 
   function backspace(player) {
+    if (frozen.value) return
     if (player === 1) {
       input1.value = input1.value.slice(0, -1)
     } else {
@@ -129,28 +167,46 @@ export function useGameState() {
 
   function checkAnswer(player) {
     const input = player === 1 ? input1.value : input2.value
-    if (input === currentQuestion.value.answer) {
+    const correct = currentQuestion.value.answer
+
+    if (input === correct) {
+      // --- Correct! ---
+      frozen.value = true
+      scoredPlayer.value = player
+
       if (player === 1) {
-        score1.value++
-        flash1.value = true
-        setTimeout(() => { flash1.value = false }, 400)
+        momentum.value = Math.min(MOMENTUM_WIN, momentum.value + 1)
       } else {
-        score2.value++
-        flash2.value = true
-        setTimeout(() => { flash2.value = false }, 400)
+        momentum.value = Math.max(-MOMENTUM_WIN, momentum.value - 1)
       }
-      // Small delay so player sees the correct answer briefly
-      setTimeout(newQuestion, 300)
+
+      if (Math.abs(momentum.value) >= MOMENTUM_WIN) {
+        roundWinner.value = momentum.value > 0 ? 1 : 2
+        setTimeout(() => {
+          level.value++
+          momentum.value = 0
+          roundWinner.value = null
+          newQuestion()
+        }, 1500)
+      } else {
+        setTimeout(newQuestion, 1500)
+      }
+    } else if (input.length >= correct.length) {
+      // Same length (or longer by 1 due to maxLen+1 guard) but wrong → shake
+      triggerShake(player)
     }
   }
 
   return {
-    score1,
-    score2,
+    level,
+    momentum,
     input1,
     input2,
-    flash1,
-    flash2,
+    frozen,
+    scoredPlayer,
+    roundWinner,
+    shake1,
+    shake2,
     currentQuestion,
     appendDigit,
     backspace,
