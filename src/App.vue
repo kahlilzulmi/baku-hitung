@@ -11,6 +11,7 @@
         :frozen="frozen"
         :scored-player="scoredPlayer"
         :round-winner="roundWinner"
+        :current-quote="currentQuote"
         :shake="shake1"
         @digit="(d) => appendDigit(1, d)"
         @backspace="backspace(1)"
@@ -31,6 +32,7 @@
         :frozen="frozen"
         :scored-player="scoredPlayer"
         :round-winner="roundWinner"
+        :current-quote="currentQuote"
         :shake="shake2"
         @digit="(d) => appendDigit(2, d)"
         @backspace="backspace(2)"
@@ -51,6 +53,7 @@ const {
   frozen,
   scoredPlayer,
   roundWinner,
+  currentQuote,
   shake1,
   shake2,
   currentQuestion,

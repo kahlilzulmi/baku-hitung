@@ -8,19 +8,34 @@
     <Transition name="fade">
       <div
         v-if="frozen"
-        class="absolute inset-0 flex flex-col items-center justify-center z-20"
+        class="absolute inset-0 flex flex-col items-center justify-center z-20 gap-1"
         :class="overlayBgClass"
       >
-        <span class="text-5xl leading-none">{{ overlayIcon }}</span>
-        <span class="text-2xl font-black text-center px-4 mt-2 leading-snug">
+        <!-- Icon -->
+        <component :is="overlayIconComponent" class="w-14 h-14" />
+
+        <!-- Title -->
+        <span class="text-2xl font-black text-center px-4 leading-snug">
           {{ overlayTitle }}
         </span>
+
+        <!-- Level progression line (round end only) -->
         <span
           v-if="roundWinner !== null"
-          class="text-base font-bold mt-2 opacity-80"
+          class="text-sm font-bold opacity-80"
         >
           Level {{ level }} → {{ level + 1 }}
         </span>
+
+        <!-- Motivational quote (round end only) -->
+        <Transition name="quote-fade">
+          <span
+            v-if="roundWinner !== null && activeQuote"
+            class="text-sm font-semibold text-center px-5 mt-1 leading-snug italic quote-pulse"
+          >
+            "{{ activeQuote }}"
+          </span>
+        </Transition>
       </div>
     </Transition>
 
@@ -44,7 +59,7 @@
         class="w-4 h-4 rounded-full border-2 transition-all duration-300"
         :class="p1DotClass(i)"
       ></div>
-      <span class="text-xs font-black opacity-30 mx-0.5 flex-shrink-0">⚡</span>
+      <Zap class="w-3.5 h-3.5 mx-0.5 flex-shrink-0 opacity-30" />
       <div
         v-for="i in 5"
         :key="`p2-${i}`"
@@ -83,18 +98,20 @@
 
 <script setup>
 import { computed } from 'vue'
+import { Trophy, CheckCircle, Flame, PauseCircle, Zap } from 'lucide-vue-next'
 import NumericKeypad from './NumericKeypad.vue'
 
 const props = defineProps({
-  player:      { type: Number,  required: true },
-  level:       { type: Number,  required: true },
-  momentum:    { type: Number,  required: true },
-  question:    { type: Object,  required: true },
-  input:       { type: String,  required: true },
-  frozen:      { type: Boolean, default: false  },
-  scoredPlayer:{ type: Number,  default: null   },
-  roundWinner: { type: Number,  default: null   },
-  shake:       { type: Boolean, default: false  },
+  player:       { type: Number,  required: true },
+  level:        { type: Number,  required: true },
+  momentum:     { type: Number,  required: true },
+  question:     { type: Object,  required: true },
+  input:        { type: String,  required: true },
+  frozen:       { type: Boolean, default: false  },
+  scoredPlayer: { type: Number,  default: null   },
+  roundWinner:  { type: Number,  default: null   },
+  currentQuote: { type: Object,  default: null   },  // { winner, loser } | null
+  shake:        { type: Boolean, default: false  },
 })
 
 defineEmits(['digit', 'backspace'])
@@ -133,11 +150,12 @@ const overlayBgClass = computed(() => {
   return isRed.value ? 'bg-red-200/75 text-red-900' : 'bg-blue-200/75 text-blue-900'
 })
 
-const overlayIcon = computed(() => {
-  if (isRoundWon.value)  return '🏆'
-  if (isRoundLost.value) return '😤'
-  if (isScoredMe.value)  return '✓'
-  return '⏸'
+// Lucide icon component for each overlay state
+const overlayIconComponent = computed(() => {
+  if (isRoundWon.value)  return Trophy
+  if (isRoundLost.value) return Flame
+  if (isScoredMe.value)  return CheckCircle
+  return PauseCircle
 })
 
 const overlayTitle = computed(() => {
@@ -147,6 +165,14 @@ const overlayTitle = computed(() => {
   if (props.frozen && props.scoredPlayer !== null)
     return `Player ${props.scoredPlayer} Scored!`
   return ''
+})
+
+// Which quote to show on this player's screen
+const activeQuote = computed(() => {
+  if (!props.currentQuote || props.roundWinner === null) return null
+  return props.roundWinner === props.player
+    ? props.currentQuote.winner
+    : props.currentQuote.loser
 })
 
 // ── Momentum dots ───────────────────────────────────────────────────────────
@@ -168,8 +194,24 @@ function p2DotClass(i) {
 </script>
 
 <style scoped>
+/* Overlay fade */
 .fade-enter-active,
 .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from,
 .fade-leave-to      { opacity: 0; }
+
+/* Quote fade-in */
+.quote-fade-enter-active { transition: opacity 0.5s ease 0.3s; }
+.quote-fade-enter-from   { opacity: 0; }
+.quote-fade-leave-active { transition: opacity 0.15s ease; }
+.quote-fade-leave-to     { opacity: 0; }
+
+/* Gentle pulse on the quote text */
+@keyframes quotePulse {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.7; }
+}
+.quote-pulse {
+  animation: quotePulse 2s ease-in-out infinite;
+}
 </style>

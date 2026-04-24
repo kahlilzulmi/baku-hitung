@@ -8,6 +8,34 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
+// ---------------------------------------------------------------------------
+// Indonesian motivational quotes
+// ---------------------------------------------------------------------------
+
+const winnerQuotes = [
+  'Kecepatan luar biasa!',
+  'Insting yang tajam!',
+  'Pertahankan momentummu!',
+  'Kerja bagus, tetap fokus!',
+  'Luar biasa! Kamu memimpin!',
+  'Otakmu bekerja seperti kalkulator!',
+  'Terus gas, jangan beri celah!',
+]
+
+const loserQuotes = [
+  'Hampir saja! Tarik napas, coba lagi.',
+  'Fokus ke soal berikutnya, kamu pasti bisa!',
+  'Setiap putaran membuatmu lebih cepat.',
+  'Jangan menyerah, balas di ronde ini!',
+  'Kamu lebih kuat dari yang kamu pikir!',
+  'Satu putaran ini bukan akhir segalanya!',
+  'Ayo bangkit, kamu pasti bisa membalas!',
+]
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
 /**
  * Generate a question for the given level (1-based).
  *
@@ -112,6 +140,9 @@ export function useGameState() {
   // Which player just won the round (null | 1 | 2) – set simultaneously with frozen
   const roundWinner = ref(null)
 
+  // Motivational quote displayed on round end (null | string)
+  const currentQuote = ref(null)
+
   // Shake animation triggers for each player's answer box
   const shake1 = ref(false)
   const shake2 = ref(false)
@@ -124,6 +155,7 @@ export function useGameState() {
     input2.value = ''
     frozen.value = false
     scoredPlayer.value = null
+    currentQuote.value = null
   }
 
   function triggerShake(player) {
@@ -181,7 +213,13 @@ export function useGameState() {
       }
 
       if (Math.abs(momentum.value) >= MOMENTUM_WIN) {
-        roundWinner.value = momentum.value > 0 ? 1 : 2
+        const winner = momentum.value > 0 ? 1 : 2
+        roundWinner.value = winner
+        // Assign a quote to each player's perspective (winner / loser)
+        currentQuote.value = {
+          winner: pickRandom(winnerQuotes),
+          loser:  pickRandom(loserQuotes),
+        }
         setTimeout(() => {
           level.value++
           momentum.value = 0
@@ -205,6 +243,7 @@ export function useGameState() {
     frozen,
     scoredPlayer,
     roundWinner,
+    currentQuote,
     shake1,
     shake2,
     currentQuestion,

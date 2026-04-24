@@ -26,13 +26,16 @@
       @click="$emit('backspace')"
       class="keypad-btn"
       :class="[colorClass, disabled ? 'opacity-40' : '']"
+      aria-label="Backspace"
     >
-      ⌫
+      <Delete class="w-5 h-5" />
     </button>
   </div>
 </template>
 
 <script setup>
+import { Delete } from 'lucide-vue-next'
+
 defineProps({
   colorClass: { type: String,  default: '' },
   disabled:   { type: Boolean, default: false },
