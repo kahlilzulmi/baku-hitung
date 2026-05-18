@@ -7,3 +7,6 @@ export const MAX_WEAK_TAG_PICK_ATTEMPTS = 24
 
 /** Show elapsed ms under the question (M2.4); default off */
 export const SHOW_QUESTION_TIMER = false
+
+/** Hold duration before duel chrome actions fire (ms) */
+export const HOLD_ACTIVATE_MS = 700

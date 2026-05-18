@@ -8,6 +8,10 @@
     "enter": "Full screen",
     "exit": "Exit full screen"
   },
+  "duel": {
+    "toolbar": "Game controls",
+    "holdToActivate": "Hold to activate"
+  },
   "timerMs": "{ms} ms",
   "timerLast": "Last: {ms} ms",
   "lobby": {

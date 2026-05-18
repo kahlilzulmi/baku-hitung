@@ -8,6 +8,10 @@
     "enter": "Layar penuh",
     "exit": "Keluar layar penuh"
   },
+  "duel": {
+    "toolbar": "Kontrol permainan",
+    "holdToActivate": "Tahan untuk mengaktifkan"
+  },
   "timerMs": "{ms} ms",
   "timerLast": "Terakhir: {ms} ms",
   "lobby": {

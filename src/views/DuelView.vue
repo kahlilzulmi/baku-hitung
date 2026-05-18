@@ -1,16 +1,5 @@
 <template>
   <div class="relative flex flex-col h-screen w-screen overflow-hidden">
-    <button
-      type="button"
-      class="absolute top-2 left-2 z-40 px-2 py-1 text-[10px] font-bold rounded-full
-             bg-white/90 text-gray-700 shadow border border-gray-300"
-      @click="$emit('exit')"
-    >
-      {{ t('backToLobby') }}
-    </button>
-
-    <FullscreenButton class="absolute top-2 right-2 z-40" />
-
     <div class="flex-1 overflow-hidden">
       <PlayerPanel
         :player="1"
@@ -34,18 +23,37 @@
       />
     </div>
 
-    <div class="relative h-1 bg-gray-400 flex-shrink-0 z-30">
-      <button
-        type="button"
-        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-               px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide
-               rounded-full bg-white text-gray-700 shadow border border-gray-300
-               hover:bg-gray-50 active:bg-gray-100"
-        :title="t('exportSession')"
-        @click="exportSession"
+    <div
+      class="relative z-30 flex-shrink-0 flex items-center justify-center gap-2
+             py-2 bg-gray-300 border-y border-gray-400"
+      role="toolbar"
+      :aria-label="t('duel.toolbar')"
+    >
+      <HoldPressButton
+        size="sm"
+        :aria-label="t('backToLobby')"
+        @activate="$emit('exit')"
+      >
+        {{ t('backToLobby') }}
+      </HoldPressButton>
+
+      <HoldPressButton
+        size="sm"
+        :aria-label="t('exportSession')"
+        @activate="exportSession"
       >
         {{ t('exportSession') }}
-      </button>
+      </HoldPressButton>
+
+      <HoldPressButton
+        v-if="isFullscreenSupported"
+        size="icon"
+        :aria-label="isFullscreen ? t('fullscreen.exit') : t('fullscreen.enter')"
+        @activate="toggleFullscreen"
+      >
+        <Minimize v-if="isFullscreen" class="w-4 h-4" aria-hidden="true" />
+        <Maximize v-else class="w-4 h-4" aria-hidden="true" />
+      </HoldPressButton>
     </div>
 
     <div class="flex-1 overflow-hidden">
@@ -76,9 +84,11 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Maximize, Minimize } from 'lucide-vue-next'
 import PlayerPanel from '../components/PlayerPanel.vue'
-import FullscreenButton from '../components/FullscreenButton.vue'
+import HoldPressButton from '../components/HoldPressButton.vue'
 import { useGameState } from '../composables/useGameState.js'
+import { useFullscreen } from '../composables/useFullscreen.js'
 import { downloadSessionExport } from '../domain/learningStore.js'
 
 const props = defineProps({
@@ -88,6 +98,7 @@ const props = defineProps({
 defineEmits(['exit'])
 
 const { t } = useI18n()
+const { isSupported: isFullscreenSupported, isFullscreen, toggle: toggleFullscreen } = useFullscreen()
 
 const player1Display = computed(() =>
   props.session.player1Name ?? t('player', { n: 1 }),
