@@ -1,0 +1,12 @@
+{
+  "player": "Pemain {n}",
+  "level": "Tingkat",
+  "levelProgress": "Tingkat {from} → {to}",
+  "exportSession": "Ekspor sesi",
+  "overlay": {
+    "roundWon": "Ronde Dimenangkan!",
+    "roundLost": "Ronde Kalah...",
+    "correct": "Benar!",
+    "opponentScored": "Pemain {n} Mencetak Skor!"
+  }
+}

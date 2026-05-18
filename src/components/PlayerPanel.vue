@@ -24,7 +24,7 @@
           v-if="roundWinner !== null"
           class="text-sm font-bold opacity-80"
         >
-          Level {{ level }} → {{ level + 1 }}
+          {{ t('levelProgress', { from: level, to: level + 1 }) }}
         </span>
 
         <!-- Motivational quote (round end only) -->
@@ -98,8 +98,11 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Trophy, CheckCircle, Flame, PauseCircle, Zap } from 'lucide-vue-next'
 import NumericKeypad from './NumericKeypad.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   player:       { type: Number,  required: true },
@@ -116,7 +119,7 @@ const props = defineProps({
 
 defineEmits(['digit', 'backspace'])
 
-const playerLabel = computed(() => `Player ${props.player}`)
+const playerLabel = computed(() => t('player', { n: props.player }))
 const isRed       = computed(() => props.player === 1)
 
 // ── Colour theming ──────────────────────────────────────────────────────────
@@ -159,11 +162,11 @@ const overlayIconComponent = computed(() => {
 })
 
 const overlayTitle = computed(() => {
-  if (isRoundWon.value)  return 'Round Won!'
-  if (isRoundLost.value) return 'Round Lost...'
-  if (isScoredMe.value)  return 'Correct!'
+  if (isRoundWon.value)  return t('overlay.roundWon')
+  if (isRoundLost.value) return t('overlay.roundLost')
+  if (isScoredMe.value)  return t('overlay.correct')
   if (props.frozen && props.scoredPlayer !== null)
-    return `Player ${props.scoredPlayer} Scored!`
+    return t('overlay.opponentScored', { n: props.scoredPlayer })
   return ''
 })
 
