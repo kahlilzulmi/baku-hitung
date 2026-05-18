@@ -1,4 +1,5 @@
 import { createLearningEvent } from './learningEvent.js'
+import { isCloudSyncEnabled, syncLearningEvent } from '../services/cloudSync.js'
 
 const STORAGE_KEY = 'baku-hitung-learning-events'
 export const MAX_LEARNING_EVENTS = 500
@@ -21,12 +22,17 @@ export function loadLearningEvents() {
  * @param {import('./learningEvent.js').LearningEvent} event
  */
 export function appendLearningEvent(event) {
+  const full = createLearningEvent(event)
   const events = loadLearningEvents()
-  events.push(createLearningEvent(event))
+  events.push(full)
   const capped = events.length > MAX_LEARNING_EVENTS
     ? events.slice(-MAX_LEARNING_EVENTS)
     : events
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(capped))
+
+  if (isCloudSyncEnabled()) {
+    syncLearningEvent(full).catch(() => {})
+  }
 }
 
 /**

@@ -3,8 +3,11 @@ import {
   MAX_WEAK_TAG_PICK_ATTEMPTS,
 } from '../config/gameDefaults.js'
 
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+/**
+ * @param {() => number} rng
+ */
+function createRandInt(rng) {
+  return (min, max) => Math.floor(rng() * (max - min + 1)) + min
 }
 
 /**
@@ -16,29 +19,16 @@ function makeQuestion(text, answer, skillTags) {
   return { text, answer: String(answer), skillTags }
 }
 
-/**
- * @param {string[]} skillTags
- * @param {string[]} weakTags
- */
 function matchesWeakTags(skillTags, weakTags) {
   if (!weakTags.length) return false
   return skillTags.some((t) => weakTags.includes(t))
 }
 
-/**
- * @param {string[]} skillTags
- * @param {string[]} tagFilter
- */
 function matchesTagFilter(skillTags, tagFilter) {
   if (!tagFilter?.length) return true
   return tagFilter.some((t) => skillTags.includes(t))
 }
 
-/**
- * @param {number} level
- * @param {number} [min]
- * @param {number} [max]
- */
 export function clampLevel(level, min, max) {
   let v = level
   if (min != null) v = Math.max(min, v)
@@ -47,11 +37,12 @@ export function clampLevel(level, min, max) {
 }
 
 /**
- * Generate a question for the given level (1-based).
  * @param {number} level
- * @returns {{ text: string, answer: string, skillTags: string[] }}
+ * @param {() => number} [rng]
  */
-export function generateQuestion(level) {
+export function generateQuestion(level, rng = Math.random) {
+  const randInt = createRandInt(rng)
+
   if (level <= 3) {
     if (randInt(0, 1) === 0) {
       const a = randInt(1, 9); const b = randInt(1, 9)
@@ -117,12 +108,7 @@ export function generateQuestion(level) {
   return makeQuestion(`${a} × ${b}`, a * b, ['multiply'])
 }
 
-/**
- * @typedef {Object} PickQuestionOptions
- * @property {number} [levelMin]
- * @property {number} [levelMax]
- * @property {string[]} [tagFilter]
- */
+/** @typedef {{ levelMin?: number, levelMax?: number, tagFilter?: string[] }} PickQuestionOptions */
 
 const MAX_TAG_FILTER_ATTEMPTS = 32
 
@@ -130,13 +116,14 @@ const MAX_TAG_FILTER_ATTEMPTS = 32
  * @param {number} level
  * @param {string[]} [weakTags]
  * @param {PickQuestionOptions} [options]
+ * @param {() => number} [rng]
  */
-export function pickQuestion(level, weakTags = [], options = {}) {
+export function pickQuestion(level, weakTags = [], options = {}, rng = Math.random) {
   const { levelMin, levelMax, tagFilter } = options
   const effectiveLevel = clampLevel(level, levelMin, levelMax)
 
   const useWeakBias =
-    weakTags.length > 0 && Math.random() < WEAK_TAG_PICK_RATIO
+    weakTags.length > 0 && rng() < WEAK_TAG_PICK_RATIO
 
   const maxAttempts = tagFilter?.length
     ? MAX_TAG_FILTER_ATTEMPTS
@@ -145,11 +132,11 @@ export function pickQuestion(level, weakTags = [], options = {}) {
       : 1
 
   for (let i = 0; i < maxAttempts; i++) {
-    const q = generateQuestion(effectiveLevel)
+    const q = generateQuestion(effectiveLevel, rng)
     if (tagFilter?.length && !matchesTagFilter(q.skillTags, tagFilter)) continue
     if (useWeakBias && !matchesWeakTags(q.skillTags, weakTags)) continue
     return q
   }
 
-  return generateQuestion(effectiveLevel)
+  return generateQuestion(effectiveLevel, rng)
 }

@@ -69,10 +69,10 @@ Incremental delivery only. **One milestone (or sub-milestone) per branch → com
 
 | ID | Task | Done |
 |----|------|:----:|
-| **M3.1** | PWA: `vite-plugin-pwa`, offline shell, icons. | [ ] |
-| **M3.2** | Optional Supabase/Firebase: anonymous `sessions` + `events` insert (env-gated). | [ ] |
-| **M3.3** | `/teacher` route: read-only aggregates from exported JSON (no backend) OR from API if M3.2 done. | [ ] |
-| **M3.4** | Async challenge link: URL seed → same question sequence for two devices (compare times locally). | [ ] |
+| **M3.1** | PWA: `vite-plugin-pwa`, offline shell, icons. | [x] |
+| **M3.2** | Optional Supabase/Firebase: anonymous `sessions` + `events` insert (env-gated). | [x] |
+| **M3.3** | `/teacher` route: read-only aggregates from exported JSON (no backend) OR from API if M3.2 done. | [x] |
+| **M3.4** | Async challenge link: URL seed → same question sequence for two devices (compare times locally). | [x] |
 
 ---
 

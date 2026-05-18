@@ -4,6 +4,7 @@ import { MOMENTUM_WIN, ROUND_FREEZE_MS } from '../config/gameDefaults.js'
 import { winnerQuotes, loserQuotes, pickRandom } from '../config/quotes.id.js'
 import { appendLearningEvent, deriveWeakSkillTags, loadLearningEvents } from '../domain/learningStore.js'
 import { getCurriculumPreset } from '../config/curriculumPresets.js'
+import { isCloudSyncEnabled, syncSessionStart } from '../services/cloudSync.js'
 
 function createSessionId() {
   return crypto.randomUUID?.() ?? `session-${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -31,6 +32,15 @@ export function useGameState(session) {
     : {}
 
   const sessionId = createSessionId()
+
+  if (isCloudSyncEnabled()) {
+    syncSessionStart(sessionId, {
+      play_mode: session.playMode ?? 'duel',
+      curriculum_id: session.curriculumId ?? null,
+      scoring_mode: session.scoringMode ?? 'gentle',
+    }).catch(() => {})
+  }
+
   const level = ref(curriculum?.levelMin ?? 1)
   const momentum = ref(0)
   const practiceStreak = ref(0)

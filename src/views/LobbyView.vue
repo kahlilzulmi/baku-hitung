@@ -112,19 +112,39 @@
       >
         {{ playMode === 'duel' ? t('lobby.startDuel') : t('lobby.startPractice') }}
       </button>
+
+      <div class="pt-2 border-t border-slate-200 space-y-2">
+        <button
+          type="button"
+          class="w-full py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          @click="createChallenge"
+        >
+          {{ challengeLinkLabel || t('lobby.createChallenge') }}
+        </button>
+        <router-link
+          to="/teacher"
+          class="block w-full py-2 text-center rounded-lg text-sm font-semibold text-blue-600 hover:bg-blue-50"
+        >
+          {{ t('lobby.teacherDashboard') }}
+        </router-link>
+      </div>
     </form>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { createChallengeSeed } from '../domain/challengeEngine.js'
 import { CURRICULUM_PRESETS } from '../config/curriculumPresets.js'
 import { SHOW_QUESTION_TIMER } from '../config/gameDefaults.js'
 
 const emit = defineEmits(['start'])
 
+const router = useRouter()
 const { t, locale } = useI18n()
+const challengeLinkLabel = ref('')
 const locales = ['id', 'en']
 
 const playModes = ['duel', 'practice']
@@ -139,6 +159,16 @@ const showTimer = ref(SHOW_QUESTION_TIMER)
 
 function setLocale(loc) {
   locale.value = loc
+}
+
+function createChallenge() {
+  const seed = createChallengeSeed()
+  const url = new URL(`/challenge/${seed}`, window.location.origin)
+  navigator.clipboard?.writeText(url.toString())
+  challengeLinkLabel.value = t('lobby.challengeCopied')
+  setTimeout(() => {
+    router.push(`/challenge/${seed}`)
+  }, 600)
 }
 
 function onSubmit() {
