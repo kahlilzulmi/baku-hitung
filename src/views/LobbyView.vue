@@ -1,5 +1,6 @@
 <template>
-  <div class="lobby-shell min-h-screen bg-gradient-to-b from-slate-50 to-slate-200 flex items-center justify-center p-4">
+  <div class="lobby-shell bg-gradient-to-b from-slate-50 to-slate-200">
+    <div class="lobby-shell-inner">
     <form
       class="lobby-card w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-5"
       @submit.prevent="onSubmit"
@@ -147,11 +148,12 @@
         </router-link>
       </div>
     </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { createChallengeSeed } from '../domain/challengeEngine.js'
@@ -177,6 +179,13 @@ const playMode = ref('duel')
 const scoringMode = ref('gentle')
 const curriculumId = ref(null)
 const showTimer = ref(SHOW_QUESTION_TIMER)
+
+onMounted(() => {
+  document.documentElement.classList.add('page-scroll')
+})
+onUnmounted(() => {
+  document.documentElement.classList.remove('page-scroll')
+})
 
 function setLocale(loc) {
   locale.value = loc
