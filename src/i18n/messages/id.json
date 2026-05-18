@@ -3,10 +3,38 @@
   "level": "Tingkat",
   "levelProgress": "Tingkat {from} → {to}",
   "exportSession": "Ekspor sesi",
+  "backToLobby": "Kembali",
+  "timerMs": "{ms} ms",
+  "timerLast": "Terakhir: {ms} ms",
+  "lobby": {
+    "title": "BakuHitung",
+    "subtitle": "Duel matematika mental — satu perangkat, dua pemain",
+    "player1": "Pemain 1 (atas)",
+    "player2": "Pemain 2 (bawah)",
+    "player1Placeholder": "Nama opsional",
+    "curriculum": "Kurikulum",
+    "curriculumFree": "Bebas (progresif)",
+    "playMode": "Mode main",
+    "modeDuel": "Duel",
+    "modePractice": "Latihan (solo)",
+    "scoringMode": "Gaya skor",
+    "scoringGentle": "Lembut",
+    "scoringCompetitive": "Kompetitif (−1 momentum jika salah)",
+    "showTimer": "Tampilkan timer (ms)",
+    "language": "Bahasa",
+    "startDuel": "Mulai duel",
+    "startPractice": "Mulai latihan"
+  },
+  "curriculum": {
+    "kelas3Multiply": "Kelas 3 — perkalian 1–9",
+    "kelas4Add": "Kelas 4 — penjumlahan 2 digit"
+  },
   "overlay": {
     "roundWon": "Ronde Dimenangkan!",
     "roundLost": "Ronde Kalah...",
     "correct": "Benar!",
-    "opponentScored": "Pemain {n} Mencetak Skor!"
+    "opponentScored": "Pemain {n} Mencetak Skor!",
+    "opponentScoredNamed": "{name} Mencetak Skor!",
+    "levelUp": "Naik tingkat!"
   }
 }

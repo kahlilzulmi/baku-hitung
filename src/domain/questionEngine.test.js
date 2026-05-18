@@ -67,6 +67,16 @@ describe('generateQuestion', () => {
   })
 })
 
+describe('pickQuestion curriculum filter', () => {
+  it('only returns multiply-tagged questions for kelas3 preset options', () => {
+    const opts = { levelMin: 4, levelMax: 7, tagFilter: ['multiply'] }
+    for (let i = 0; i < 30; i++) {
+      const q = pickQuestion(5, [], opts)
+      expect(q.skillTags).toContain('multiply')
+    }
+  })
+})
+
 describe('deriveWeakSkillTags', () => {
   it('ranks tags from incorrect events', () => {
     const weak = deriveWeakSkillTags([

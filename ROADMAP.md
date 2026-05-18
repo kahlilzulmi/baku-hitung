@@ -56,12 +56,12 @@ Incremental delivery only. **One milestone (or sub-milestone) per branch → com
 
 | ID | Task | Done |
 |----|------|:----:|
-| **M2.1** | `LobbyView`: player names (optional), language toggle, “Start duel”. | [ ] |
-| **M2.2** | Curriculum preset: “Kelas 3 — perkalian 1–9” maps to level band + tag filter (one preset only). | [ ] |
-| **M2.3** | Practice mode: single player, no momentum UI; same question engine. | [ ] |
-| **M2.4** | Per-question `responseMs` + optional subtle timer display (config flag, default off). | [ ] |
-| **M2.5** | Game mode toggle: `gentle` (current) vs `competitive` (wrong answer −1 momentum). | [ ] |
-| **M2.6** | Second curriculum preset (e.g. “Kelas 4 — penjumlahan 2 digit”). | [ ] |
+| **M2.1** | `LobbyView`: player names (optional), language toggle, “Start duel”. | [x] |
+| **M2.2** | Curriculum preset: “Kelas 3 — perkalian 1–9” maps to level band + tag filter (one preset only). | [x] |
+| **M2.3** | Practice mode: single player, no momentum UI; same question engine. | [x] |
+| **M2.4** | Per-question `responseMs` + optional subtle timer display (config flag, default off). | [x] |
+| **M2.5** | Game mode toggle: `gentle` (current) vs `competitive` (wrong answer −1 momentum). | [x] |
+| **M2.6** | Second curriculum preset (e.g. “Kelas 4 — penjumlahan 2 digit”). | [x] |
 
 ---
 

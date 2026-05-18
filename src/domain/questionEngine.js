@@ -26,6 +26,27 @@ function matchesWeakTags(skillTags, weakTags) {
 }
 
 /**
+ * @param {string[]} skillTags
+ * @param {string[]} tagFilter
+ */
+function matchesTagFilter(skillTags, tagFilter) {
+  if (!tagFilter?.length) return true
+  return tagFilter.some((t) => skillTags.includes(t))
+}
+
+/**
+ * @param {number} level
+ * @param {number} [min]
+ * @param {number} [max]
+ */
+export function clampLevel(level, min, max) {
+  let v = level
+  if (min != null) v = Math.max(min, v)
+  if (max != null) v = Math.min(max, v)
+  return v
+}
+
+/**
  * Generate a question for the given level (1-based).
  * @param {number} level
  * @returns {{ text: string, answer: string, skillTags: string[] }}
@@ -97,20 +118,38 @@ export function generateQuestion(level) {
 }
 
 /**
+ * @typedef {Object} PickQuestionOptions
+ * @property {number} [levelMin]
+ * @property {number} [levelMax]
+ * @property {string[]} [tagFilter]
+ */
+
+const MAX_TAG_FILTER_ATTEMPTS = 32
+
+/**
  * @param {number} level
  * @param {string[]} [weakTags]
+ * @param {PickQuestionOptions} [options]
  */
-export function pickQuestion(level, weakTags = []) {
+export function pickQuestion(level, weakTags = [], options = {}) {
+  const { levelMin, levelMax, tagFilter } = options
+  const effectiveLevel = clampLevel(level, levelMin, levelMax)
+
   const useWeakBias =
     weakTags.length > 0 && Math.random() < WEAK_TAG_PICK_RATIO
 
-  if (!useWeakBias) {
-    return generateQuestion(level)
+  const maxAttempts = tagFilter?.length
+    ? MAX_TAG_FILTER_ATTEMPTS
+    : useWeakBias
+      ? MAX_WEAK_TAG_PICK_ATTEMPTS
+      : 1
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const q = generateQuestion(effectiveLevel)
+    if (tagFilter?.length && !matchesTagFilter(q.skillTags, tagFilter)) continue
+    if (useWeakBias && !matchesWeakTags(q.skillTags, weakTags)) continue
+    return q
   }
 
-  for (let i = 0; i < MAX_WEAK_TAG_PICK_ATTEMPTS; i++) {
-    const q = generateQuestion(level)
-    if (matchesWeakTags(q.skillTags, weakTags)) return q
-  }
-  return generateQuestion(level)
+  return generateQuestion(effectiveLevel)
 }

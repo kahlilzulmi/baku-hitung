@@ -1,0 +1,40 @@
+{
+  "player": "Player {n}",
+  "level": "Level",
+  "levelProgress": "Level {from} → {to}",
+  "exportSession": "Export session",
+  "backToLobby": "Back",
+  "timerMs": "{ms} ms",
+  "timerLast": "Last: {ms} ms",
+  "lobby": {
+    "title": "BakuHitung",
+    "subtitle": "Mental math duel — one device, two players",
+    "player1": "Player 1 (top)",
+    "player2": "Player 2 (bottom)",
+    "player1Placeholder": "Optional name",
+    "curriculum": "Curriculum",
+    "curriculumFree": "Free play (progressive)",
+    "playMode": "Play mode",
+    "modeDuel": "Duel",
+    "modePractice": "Practice (solo)",
+    "scoringMode": "Scoring style",
+    "scoringGentle": "Gentle",
+    "scoringCompetitive": "Competitive (−1 momentum on wrong)",
+    "showTimer": "Show timer (ms)",
+    "language": "Language",
+    "startDuel": "Start duel",
+    "startPractice": "Start practice"
+  },
+  "curriculum": {
+    "kelas3Multiply": "Grade 3 — multiplication 1–9",
+    "kelas4Add": "Grade 4 — 2-digit addition"
+  },
+  "overlay": {
+    "roundWon": "Round Won!",
+    "roundLost": "Round Lost...",
+    "correct": "Correct!",
+    "opponentScored": "Player {n} Scored!",
+    "opponentScoredNamed": "{name} Scored!",
+    "levelUp": "Level up!"
+  }
+}

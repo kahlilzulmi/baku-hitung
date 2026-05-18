@@ -1,17 +1,39 @@
-import { ref } from 'vue'
-import { pickQuestion } from '../domain/questionEngine.js'
+import { ref, onUnmounted } from 'vue'
+import { pickQuestion, clampLevel } from '../domain/questionEngine.js'
 import { MOMENTUM_WIN, ROUND_FREEZE_MS } from '../config/gameDefaults.js'
 import { winnerQuotes, loserQuotes, pickRandom } from '../config/quotes.id.js'
 import { appendLearningEvent, deriveWeakSkillTags, loadLearningEvents } from '../domain/learningStore.js'
+import { getCurriculumPreset } from '../config/curriculumPresets.js'
 
 function createSessionId() {
   return crypto.randomUUID?.() ?? `session-${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-export function useGameState() {
+/**
+ * @typedef {Object} GameSession
+ * @property {'duel' | 'practice'} playMode
+ * @property {'gentle' | 'competitive'} [scoringMode]
+ * @property {string | null} [curriculumId]
+ * @property {boolean} [showTimer]
+ */
+
+/**
+ * @param {GameSession} session
+ */
+export function useGameState(session) {
+  const playMode = session.playMode ?? 'duel'
+  const scoringMode = session.scoringMode ?? 'gentle'
+  const showTimer = session.showTimer ?? false
+  const curriculum = getCurriculumPreset(session.curriculumId)
+
+  const pickOptions = curriculum
+    ? { levelMin: curriculum.levelMin, levelMax: curriculum.levelMax, tagFilter: curriculum.tagFilter }
+    : {}
+
   const sessionId = createSessionId()
-  const level = ref(1)
+  const level = ref(curriculum?.levelMin ?? 1)
   const momentum = ref(0)
+  const practiceStreak = ref(0)
 
   const input1 = ref('')
   const input2 = ref('')
@@ -24,13 +46,48 @@ export function useGameState() {
   const shake1 = ref(false)
   const shake2 = ref(false)
 
+  const lastResponseMs = ref(null)
+  const questionElapsedMs = ref(0)
+
   let questionShownAt = Date.now()
-  const currentQuestion = ref(pickQuestion(1))
+  let timerHandle = null
+
+  function effectiveLevel() {
+    return clampLevel(level.value, curriculum?.levelMin, curriculum?.levelMax)
+  }
+
+  function bumpLevel() {
+    const next = level.value + 1
+    level.value = curriculum?.levelMax != null
+      ? Math.min(curriculum.levelMax, next)
+      : next
+  }
+
+  const currentQuestion = ref(
+    pickQuestion(effectiveLevel(), [], pickOptions),
+  )
+
+  function startQuestionTimer() {
+    if (!showTimer) return
+    stopQuestionTimer()
+    questionElapsedMs.value = 0
+    timerHandle = setInterval(() => {
+      questionElapsedMs.value = Math.max(0, Date.now() - questionShownAt)
+    }, 100)
+  }
+
+  function stopQuestionTimer() {
+    if (timerHandle != null) {
+      clearInterval(timerHandle)
+      timerHandle = null
+    }
+  }
 
   function nextQuestion() {
     const weakTags = deriveWeakSkillTags(loadLearningEvents())
-    currentQuestion.value = pickQuestion(level.value, weakTags)
+    currentQuestion.value = pickQuestion(effectiveLevel(), weakTags, pickOptions)
     questionShownAt = Date.now()
+    startQuestionTimer()
   }
 
   function newQuestion() {
@@ -40,9 +97,12 @@ export function useGameState() {
     frozen.value = false
     scoredPlayer.value = null
     currentQuote.value = null
+    roundWinner.value = null
   }
 
-  function recordEvent(player, input, correct) {
+  startQuestionTimer()
+
+  function recordEvent(player, input, correct, responseMs) {
     const q = currentQuestion.value
     appendLearningEvent({
       sessionId,
@@ -51,10 +111,19 @@ export function useGameState() {
       questionText: q.text,
       expectedAnswer: q.answer,
       skillTags: q.skillTags,
-      responseMs: Math.max(0, Date.now() - questionShownAt),
+      responseMs,
       correct,
       ...(correct ? {} : { attempt: input }),
     })
+  }
+
+  function applyCompetitivePenalty(player) {
+    if (scoringMode !== 'competitive' || playMode !== 'duel') return
+    if (player === 1) {
+      momentum.value = Math.max(-MOMENTUM_WIN, momentum.value - 1)
+    } else {
+      momentum.value = Math.min(MOMENTUM_WIN, momentum.value + 1)
+    }
   }
 
   function triggerShake(player) {
@@ -69,8 +138,68 @@ export function useGameState() {
     }
   }
 
+  function handleCorrect(player) {
+    const input = player === 1 ? input1.value : input2.value
+    const responseMs = Math.max(0, Date.now() - questionShownAt)
+    lastResponseMs.value = responseMs
+    stopQuestionTimer()
+    recordEvent(player, input, true, responseMs)
+
+    frozen.value = true
+    scoredPlayer.value = player
+
+    if (playMode === 'practice') {
+      practiceStreak.value++
+      if (practiceStreak.value >= MOMENTUM_WIN) {
+        roundWinner.value = 1
+        practiceStreak.value = 0
+        setTimeout(() => {
+          bumpLevel()
+          roundWinner.value = null
+          newQuestion()
+        }, ROUND_FREEZE_MS)
+      } else {
+        setTimeout(newQuestion, ROUND_FREEZE_MS)
+      }
+      return
+    }
+
+    if (player === 1) {
+      momentum.value = Math.min(MOMENTUM_WIN, momentum.value + 1)
+    } else {
+      momentum.value = Math.max(-MOMENTUM_WIN, momentum.value - 1)
+    }
+
+    if (Math.abs(momentum.value) >= MOMENTUM_WIN) {
+      roundWinner.value = momentum.value > 0 ? 1 : 2
+      currentQuote.value = {
+        winner: pickRandom(winnerQuotes),
+        loser: pickRandom(loserQuotes),
+      }
+      setTimeout(() => {
+        bumpLevel()
+        momentum.value = 0
+        roundWinner.value = null
+        newQuestion()
+      }, ROUND_FREEZE_MS)
+    } else {
+      setTimeout(newQuestion, ROUND_FREEZE_MS)
+    }
+  }
+
+  function handleWrong(player) {
+    const input = player === 1 ? input1.value : input2.value
+    const responseMs = Math.max(0, Date.now() - questionShownAt)
+    lastResponseMs.value = responseMs
+    recordEvent(player, input, false, responseMs)
+    applyCompetitivePenalty(player)
+    triggerShake(player)
+  }
+
   function appendDigit(player, digit) {
     if (frozen.value) return
+    if (playMode === 'practice' && player !== 1) return
+
     const maxLen = currentQuestion.value.answer.length + 1
     if (player === 1) {
       if (digit === '0' && input1.value === '') return
@@ -87,6 +216,7 @@ export function useGameState() {
 
   function backspace(player) {
     if (frozen.value) return
+    if (playMode === 'practice' && player !== 1) return
     if (player === 1) {
       input1.value = input1.value.slice(0, -1)
     } else {
@@ -99,42 +229,20 @@ export function useGameState() {
     const correct = currentQuestion.value.answer
 
     if (input === correct) {
-      recordEvent(player, input, true)
-      frozen.value = true
-      scoredPlayer.value = player
-
-      if (player === 1) {
-        momentum.value = Math.min(MOMENTUM_WIN, momentum.value + 1)
-      } else {
-        momentum.value = Math.max(-MOMENTUM_WIN, momentum.value - 1)
-      }
-
-      if (Math.abs(momentum.value) >= MOMENTUM_WIN) {
-        const winner = momentum.value > 0 ? 1 : 2
-        roundWinner.value = winner
-        currentQuote.value = {
-          winner: pickRandom(winnerQuotes),
-          loser:  pickRandom(loserQuotes),
-        }
-        setTimeout(() => {
-          level.value++
-          momentum.value = 0
-          roundWinner.value = null
-          newQuestion()
-        }, ROUND_FREEZE_MS)
-      } else {
-        setTimeout(newQuestion, ROUND_FREEZE_MS)
-      }
+      handleCorrect(player)
     } else if (input.length >= correct.length) {
-      recordEvent(player, input, false)
-      triggerShake(player)
+      handleWrong(player)
     }
   }
 
+  onUnmounted(stopQuestionTimer)
+
   return {
     sessionId,
+    playMode,
     level,
     momentum,
+    practiceStreak,
     input1,
     input2,
     frozen,
@@ -144,6 +252,9 @@ export function useGameState() {
     shake1,
     shake2,
     currentQuestion,
+    lastResponseMs,
+    questionElapsedMs,
+    showTimer,
     appendDigit,
     backspace,
   }
