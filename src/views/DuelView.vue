@@ -9,6 +9,8 @@
       {{ t('backToLobby') }}
     </button>
 
+    <FullscreenButton class="absolute top-2 right-2 z-40" />
+
     <div class="flex-1 overflow-hidden">
       <PlayerPanel
         :player="1"
@@ -75,6 +77,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PlayerPanel from '../components/PlayerPanel.vue'
+import FullscreenButton from '../components/FullscreenButton.vue'
 import { useGameState } from '../composables/useGameState.js'
 import { downloadSessionExport } from '../domain/learningStore.js'
 

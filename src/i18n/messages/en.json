@@ -4,6 +4,10 @@
   "levelProgress": "Level {from} → {to}",
   "exportSession": "Export session",
   "backToLobby": "Back",
+  "fullscreen": {
+    "enter": "Full screen",
+    "exit": "Exit full screen"
+  },
   "timerMs": "{ms} ms",
   "timerLast": "Last: {ms} ms",
   "lobby": {

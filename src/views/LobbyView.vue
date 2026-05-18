@@ -10,6 +10,7 @@
       </header>
 
       <div class="flex justify-end items-center gap-2">
+        <FullscreenButton size="md" />
         <span class="text-xs font-semibold text-slate-500">{{ t('lobby.language') }}</span>
         <button
           v-for="loc in locales"
@@ -157,6 +158,7 @@ import { createChallengeSeed } from '../domain/challengeEngine.js'
 import { CURRICULUM_PRESETS } from '../config/curriculumPresets.js'
 import { SHOW_QUESTION_TIMER } from '../config/gameDefaults.js'
 import { useA11yPrefs } from '../composables/useA11yPrefs.js'
+import FullscreenButton from '../components/FullscreenButton.vue'
 
 const emit = defineEmits(['start'])
 

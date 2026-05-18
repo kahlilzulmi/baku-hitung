@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-slate-100 flex flex-col">
-    <header class="flex items-center justify-between px-4 py-2 bg-white border-b border-slate-200">
+    <header class="flex items-center justify-between gap-2 px-4 py-2 bg-white border-b border-slate-200">
       <button
         type="button"
         class="text-xs font-bold text-slate-600 hover:text-slate-900"
@@ -8,7 +8,8 @@
       >
         {{ t('backToLobby') }}
       </button>
-      <span class="text-xs font-mono text-slate-500">{{ seed }}</span>
+      <span class="text-xs font-mono text-slate-500 truncate flex-1 text-center">{{ seed }}</span>
+      <FullscreenButton />
     </header>
 
     <div v-if="!started" class="flex-1 flex items-center justify-center p-4">
@@ -51,6 +52,7 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import FullscreenButton from '../components/FullscreenButton.vue'
 import ChallengePlay from './ChallengePlay.vue'
 import ChallengeResults from './ChallengeResults.vue'
 import { CHALLENGE_QUESTION_COUNT } from '../domain/challengeEngine.js'

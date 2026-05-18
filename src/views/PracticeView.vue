@@ -9,15 +9,18 @@
       {{ t('backToLobby') }}
     </button>
 
-    <button
-      type="button"
-      class="absolute top-2 right-2 z-40 px-2 py-1 text-[10px] font-bold rounded-full
-             bg-white/90 text-gray-700 shadow border border-gray-300"
-      :title="t('exportSession')"
-      @click="exportSession"
-    >
-      {{ t('exportSession') }}
-    </button>
+    <div class="absolute top-2 right-2 z-40 flex items-center gap-1.5">
+      <FullscreenButton />
+      <button
+        type="button"
+        class="px-2 py-1 text-[10px] font-bold rounded-full
+               bg-white/90 text-gray-700 shadow border border-gray-300"
+        :title="t('exportSession')"
+        @click="exportSession"
+      >
+        {{ t('exportSession') }}
+      </button>
+    </div>
 
     <PlayerPanel
       :player="1"
@@ -46,6 +49,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PlayerPanel from '../components/PlayerPanel.vue'
+import FullscreenButton from '../components/FullscreenButton.vue'
 import { useGameState } from '../composables/useGameState.js'
 import { downloadSessionExport } from '../domain/learningStore.js'
 

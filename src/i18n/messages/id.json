@@ -4,6 +4,10 @@
   "levelProgress": "Tingkat {from} → {to}",
   "exportSession": "Ekspor sesi",
   "backToLobby": "Kembali",
+  "fullscreen": {
+    "enter": "Layar penuh",
+    "exit": "Keluar layar penuh"
+  },
   "timerMs": "{ms} ms",
   "timerLast": "Terakhir: {ms} ms",
   "lobby": {
