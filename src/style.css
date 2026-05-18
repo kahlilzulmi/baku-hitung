@@ -1,9 +1,9 @@
-/* Tailwind base layers */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Prevent overscroll / bounce on mobile */
 html, body {
   overflow: hidden;
   height: 100%;
@@ -17,7 +17,43 @@ html, body {
   overflow: hidden;
 }
 
-/* ── Shake animation for wrong same-length answer ─────────────────────── */
+/* M4.4 — dyslexia-friendly font (optional toggle) */
+html.font-dyslexia,
+html.font-dyslexia #app {
+  font-family: 'Lexend', 'Comic Sans MS', 'Segoe UI', sans-serif;
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+}
+
+/* M4.1 — reduced motion: shake, pulse, transitions */
+@media (prefers-reduced-motion: reduce) {
+  .shake,
+  .quote-pulse {
+    animation: none !important;
+  }
+  .fade-enter-active,
+  .fade-leave-active,
+  .quote-fade-enter-active,
+  .quote-fade-leave-active {
+    transition: none !important;
+  }
+  .keypad-btn {
+    transition: none !important;
+  }
+}
+
+html.reduce-motion .shake,
+html.reduce-motion .quote-pulse {
+  animation: none !important;
+}
+
+html.reduce-motion .fade-enter-active,
+html.reduce-motion .fade-leave-active,
+html.reduce-motion .quote-fade-enter-active,
+html.reduce-motion .quote-fade-leave-active {
+  transition: none !important;
+}
+
 @keyframes shake {
   0%,  100% { transform: translateX(0);    }
   15%       { transform: translateX(-8px); }
@@ -30,4 +66,70 @@ html, body {
 
 .shake {
   animation: shake 0.5s ease-in-out;
+}
+
+/* M4.3 — high contrast (toggle on html) */
+html.theme-high-contrast {
+  color-scheme: dark;
+}
+
+html.theme-high-contrast .lobby-shell {
+  background: #000 !important;
+}
+
+html.theme-high-contrast .lobby-card {
+  background: #000 !important;
+  color: #fff !important;
+  border: 2px solid #facc15 !important;
+}
+
+html.theme-high-contrast .lobby-card input,
+html.theme-high-contrast .lobby-card select {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+html.theme-high-contrast [data-panel="p1"] {
+  background: #000 !important;
+  color: #fff !important;
+  border: 3px solid #f87171 !important;
+}
+
+html.theme-high-contrast [data-panel="p2"],
+html.theme-high-contrast [data-panel="practice"] {
+  background: #000 !important;
+  color: #fff !important;
+  border: 3px solid #38bdf8 !important;
+}
+
+html.theme-high-contrast [data-panel] .answer-box {
+  background: #1a1a1a !important;
+  color: #fff !important;
+  border: 2px solid #fff !important;
+}
+
+html.theme-high-contrast [data-panel] .level-badge {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+html.theme-high-contrast .keypad-btn {
+  background: #fff !important;
+  color: #000 !important;
+  border: 2px solid #facc15 !important;
+}
+
+html.theme-high-contrast .momentum-dot-filled-p1 {
+  background: #f87171 !important;
+  border-color: #f87171 !important;
+}
+
+html.theme-high-contrast .momentum-dot-filled-p2 {
+  background: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+}
+
+html.theme-high-contrast .momentum-dot-empty {
+  border-color: #fff !important;
 }

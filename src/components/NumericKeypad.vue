@@ -1,20 +1,26 @@
 <template>
-  <!-- 3×4 grid: 1-9 row-major, then [spacer] [0] [⌫] -->
-  <div class="grid grid-cols-3 gap-1.5 w-full select-none">
+  <div
+    class="grid grid-cols-3 gap-1.5 w-full select-none"
+    role="group"
+    :aria-label="t('keypad.group')"
+  >
     <button
       v-for="n in [1,2,3,4,5,6,7,8,9]"
       :key="n"
+      type="button"
       :disabled="disabled"
+      :aria-label="t('keypad.digit', { n })"
       @click="$emit('digit', String(n))"
       class="keypad-btn"
       :class="[colorClass, disabled ? 'opacity-40' : '']"
     >
       {{ n }}
     </button>
-    <!-- Bottom row: empty spacer | 0 | backspace -->
-    <div></div>
+    <div aria-hidden="true" />
     <button
+      type="button"
       :disabled="disabled"
+      :aria-label="t('keypad.digit', { n: 0 })"
       @click="$emit('digit', '0')"
       class="keypad-btn"
       :class="[colorClass, disabled ? 'opacity-40' : '']"
@@ -22,19 +28,23 @@
       0
     </button>
     <button
+      type="button"
       :disabled="disabled"
+      :aria-label="t('keypad.backspace')"
       @click="$emit('backspace')"
       class="keypad-btn"
       :class="[colorClass, disabled ? 'opacity-40' : '']"
-      aria-label="Backspace"
     >
-      <Delete class="w-5 h-5" />
+      <Delete class="w-5 h-5" aria-hidden="true" />
     </button>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { Delete } from 'lucide-vue-next'
+
+const { t } = useI18n()
 
 defineProps({
   colorClass: { type: String,  default: '' },

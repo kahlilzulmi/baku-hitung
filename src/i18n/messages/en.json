@@ -26,7 +26,22 @@
     "startPractice": "Start practice",
     "createChallenge": "Create challenge link",
     "challengeCopied": "Link copied — opening…",
-    "teacherDashboard": "Teacher dashboard"
+    "teacherDashboard": "Teacher dashboard",
+    "accessibility": "Accessibility",
+    "highContrast": "High contrast",
+    "dyslexiaFont": "Dyslexia-friendly font (Lexend)",
+    "reducedMotionOn": "Reduced motion (system preference active)"
+  },
+  "keypad": {
+    "group": "Number keypad",
+    "digit": "Digit {n}",
+    "backspace": "Delete"
+  },
+  "a11y": {
+    "question": "Question: {text}",
+    "answerEmpty": "Answer empty",
+    "answerValue": "Answer: {value}",
+    "momentum": "Momentum: {score}"
   },
   "challenge": {
     "title": "Async challenge",

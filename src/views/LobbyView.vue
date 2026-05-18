@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-200 flex items-center justify-center p-4">
+  <div class="lobby-shell min-h-screen bg-gradient-to-b from-slate-50 to-slate-200 flex items-center justify-center p-4">
     <form
-      class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-5"
+      class="lobby-card w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-5"
       @submit.prevent="onSubmit"
     >
       <header class="text-center space-y-1">
@@ -105,6 +105,23 @@
         {{ t('lobby.showTimer') }}
       </label>
 
+      <fieldset class="space-y-2 pt-2 border-t border-slate-200">
+        <legend class="text-xs font-bold uppercase tracking-wide text-slate-500">
+          {{ t('lobby.accessibility') }}
+        </legend>
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input v-model="highContrast" type="checkbox" class="rounded border-slate-300" />
+          {{ t('lobby.highContrast') }}
+        </label>
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input v-model="dyslexiaFont" type="checkbox" class="rounded border-slate-300" />
+          {{ t('lobby.dyslexiaFont') }}
+        </label>
+        <p v-if="prefersReducedMotion" class="text-xs text-slate-500">
+          {{ t('lobby.reducedMotionOn') }}
+        </p>
+      </fieldset>
+
       <button
         type="submit"
         class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800
@@ -139,11 +156,13 @@ import { useI18n } from 'vue-i18n'
 import { createChallengeSeed } from '../domain/challengeEngine.js'
 import { CURRICULUM_PRESETS } from '../config/curriculumPresets.js'
 import { SHOW_QUESTION_TIMER } from '../config/gameDefaults.js'
+import { useA11yPrefs } from '../composables/useA11yPrefs.js'
 
 const emit = defineEmits(['start'])
 
 const router = useRouter()
 const { t, locale } = useI18n()
+const { highContrast, dyslexiaFont, prefersReducedMotion } = useA11yPrefs()
 const challengeLinkLabel = ref('')
 const locales = ['id', 'en']
 

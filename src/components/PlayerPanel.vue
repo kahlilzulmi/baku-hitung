@@ -2,6 +2,7 @@
   <div
     class="relative flex flex-col h-full w-full px-3 py-2"
     :class="bgClass"
+    :data-panel="panelDataAttr"
     :style="player === 1 && !practiceMode ? 'transform: rotate(180deg)' : ''"
   >
     <Transition name="fade">
@@ -9,8 +10,10 @@
         v-if="frozen"
         class="absolute inset-0 flex flex-col items-center justify-center z-20 gap-1"
         :class="overlayBgClass"
+        role="status"
+        aria-live="assertive"
       >
-        <component :is="overlayIconComponent" class="w-14 h-14" />
+        <component :is="overlayIconComponent" class="w-14 h-14" aria-hidden="true" />
 
         <span class="text-2xl font-black text-center px-4 leading-snug">
           {{ overlayTitle }}
@@ -26,7 +29,8 @@
         <Transition name="quote-fade">
           <span
             v-if="roundWinner !== null && activeQuote"
-            class="text-sm font-semibold text-center px-5 mt-1 leading-snug italic quote-pulse"
+            class="text-sm font-semibold text-center px-5 mt-1 leading-snug italic"
+            :class="{ 'quote-pulse': !prefersReducedMotion }"
           >
             "{{ activeQuote }}"
           </span>
@@ -36,7 +40,7 @@
 
     <div class="flex justify-between items-center flex-shrink-0">
       <span class="text-sm font-bold opacity-60">{{ displayName }}</span>
-      <span class="text-sm font-bold px-2 py-0.5 rounded-full" :class="levelBadgeClass">
+      <span class="text-sm font-bold px-2 py-0.5 rounded-full level-badge" :class="levelBadgeClass">
         Lvl {{ level }}
       </span>
     </div>
@@ -44,6 +48,8 @@
     <div
       v-if="showMomentum"
       class="flex items-center justify-center gap-1.5 mt-1.5 flex-shrink-0"
+      role="img"
+      :aria-label="momentumAriaLabel"
     >
       <div
         v-for="i in 5"
@@ -51,7 +57,7 @@
         class="w-4 h-4 rounded-full border-2 transition-all duration-300"
         :class="p1DotClass(i)"
       />
-      <Zap class="w-3.5 h-3.5 mx-0.5 flex-shrink-0 opacity-30" />
+      <Zap class="w-3.5 h-3.5 mx-0.5 flex-shrink-0 opacity-30" aria-hidden="true" />
       <div
         v-for="i in 5"
         :key="`p2-${i}`"
@@ -61,14 +67,23 @@
     </div>
 
     <div class="flex flex-col items-center flex-1 justify-center gap-2 min-h-0">
-      <p class="text-2xl font-extrabold tracking-wide text-center leading-tight px-2">
+      <p
+        class="text-2xl font-extrabold tracking-wide text-center leading-tight px-2"
+        aria-live="polite"
+        aria-atomic="true"
+        :aria-label="t('a11y.question', { text: question.text })"
+      >
         {{ question.text }} =
       </p>
 
       <div
-        class="rounded-xl text-center px-6 py-1 text-2xl font-extrabold tracking-widest
+        class="answer-box rounded-xl text-center px-6 py-1 text-2xl font-extrabold tracking-widest
                min-w-[110px] shadow-inner"
-        :class="[answerBoxClass, shake ? 'shake' : '']"
+        :class="[answerBoxClass, shakeActive ? 'shake' : '']"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        :aria-label="answerAriaLabel"
       >
         {{ input || '?' }}
       </div>
@@ -101,8 +116,10 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Trophy, CheckCircle, Flame, PauseCircle, Zap } from 'lucide-vue-next'
 import NumericKeypad from './NumericKeypad.vue'
+import { useA11yPrefs } from '../composables/useA11yPrefs.js'
 
 const { t } = useI18n()
+const { prefersReducedMotion } = useA11yPrefs()
 
 const props = defineProps({
   player:          { type: Number,  required: true },
@@ -130,6 +147,23 @@ const displayName = computed(() =>
   props.displayName || t('player', { n: props.player }),
 )
 const isRed = computed(() => props.player === 1)
+
+const panelDataAttr = computed(() => {
+  if (props.practiceMode) return 'practice'
+  return isRed.value ? 'p1' : 'p2'
+})
+
+const shakeActive = computed(() => props.shake && !prefersReducedMotion.value)
+
+const answerAriaLabel = computed(() =>
+  props.input
+    ? t('a11y.answerValue', { value: props.input })
+    : t('a11y.answerEmpty'),
+)
+
+const momentumAriaLabel = computed(() =>
+  t('a11y.momentum', { score: props.momentum }),
+)
 
 const bgClass = computed(() => {
   if (props.practiceMode) return 'bg-blue-100 text-blue-900'
@@ -199,15 +233,17 @@ const activeQuote = computed(() => {
 })
 
 function p1DotClass(i) {
-  return props.momentum >= (6 - i)
-    ? 'bg-red-500 border-red-500'
-    : 'bg-transparent border-red-300'
+  const filled = props.momentum >= (6 - i)
+  return filled
+    ? 'momentum-dot-filled-p1 bg-red-500 border-red-500'
+    : 'momentum-dot-empty bg-transparent border-red-300'
 }
 
 function p2DotClass(i) {
-  return props.momentum <= -i
-    ? 'bg-blue-500 border-blue-500'
-    : 'bg-transparent border-blue-300'
+  const filled = props.momentum <= -i
+  return filled
+    ? 'momentum-dot-filled-p2 bg-blue-500 border-blue-500'
+    : 'momentum-dot-empty bg-transparent border-blue-300'
 }
 </script>
 

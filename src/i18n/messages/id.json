@@ -26,7 +26,22 @@
     "startPractice": "Mulai latihan",
     "createChallenge": "Buat tautan tantangan",
     "challengeCopied": "Tautan disalin — membuka…",
-    "teacherDashboard": "Dasbor guru"
+    "teacherDashboard": "Dasbor guru",
+    "accessibility": "Aksesibilitas",
+    "highContrast": "Kontras tinggi",
+    "dyslexiaFont": "Font ramah disleksia (Lexend)",
+    "reducedMotionOn": "Animasi berkurang (preferensi sistem aktif)"
+  },
+  "keypad": {
+    "group": "Keypad angka",
+    "digit": "Angka {n}",
+    "backspace": "Hapus"
+  },
+  "a11y": {
+    "question": "Soal: {text}",
+    "answerEmpty": "Jawaban kosong",
+    "answerValue": "Jawaban: {value}",
+    "momentum": "Momentum: {score}"
   },
   "challenge": {
     "title": "Tantangan async",

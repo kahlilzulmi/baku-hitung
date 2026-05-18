@@ -80,10 +80,10 @@ Incremental delivery only. **One milestone (or sub-milestone) per branch → com
 
 | ID | Task | Done |
 |----|------|:----:|
-| **M4.1** | `prefers-reduced-motion`: disable shake + quote pulse. | [ ] |
-| **M4.2** | `aria-live` on question/answer; keypad `aria-label`s audit. | [ ] |
-| **M4.3** | High-contrast theme toggle. | [ ] |
-| **M4.4** | Optional dyslexia-friendly font toggle. | [ ] |
+| **M4.1** | `prefers-reduced-motion`: disable shake + quote pulse. | [x] |
+| **M4.2** | `aria-live` on question/answer; keypad `aria-label`s audit. | [x] |
+| **M4.3** | High-contrast theme toggle. | [x] |
+| **M4.4** | Optional dyslexia-friendly font toggle. | [x] |
 
 ---
 
