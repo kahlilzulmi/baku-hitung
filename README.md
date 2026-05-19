@@ -1,53 +1,136 @@
-# BakuHitung  
-BakuHitung adalah sebuah eksperimen edutech dalam bentuk aplikasi web adu tangkas matematika mental real-time. Proyek ini lahir dari kebutuhan praktis dalam membimbing siswa sekolah dasar untuk mencintai matematika melalui kompetisi yang sehat dan interaktif.  
+# BakuHitung
 
-Aplikasi ini menggunakan pendekatan split-screen yang dioptimalkan untuk tablet dan smartphone, memungkinkan dua pemain bertanding secara tatap muka dalam satu perangkat.
+BakuHitung adalah eksperimen edutech berupa aplikasi web **adu tangkas matematika mental** real-time. Proyek ini lahir dari kebutuhan praktis membimbing siswa sekolah dasar mencintai matematika melalui kompetisi yang sehat dan interaktif.
 
-## Human-AI Collaboration
-Proyek ini merupakan bukti nyata dari efisiensi pengembangan perangkat lunak modern melalui kolaborasi antara kreativitas manusia dan kecerdasan buatan:
+Aplikasi memakai **split-screen** yang dioptimalkan untuk tablet dan smartphone: dua pemain bisa bertanding tatap muka dalam satu perangkat, atau berlatih solo dalam mode latihan.
 
-* Brainstorming & Konseptualisasi: Dirancang melalui diskusi mendalam antara pengembang (Kahlil Gibran Al Zulmi) dan Google Gemini. Kami merumuskan mekanik permainan Tug-of-War, struktur tingkat kesulitan yang inklusif (dari TK hingga Mahasiswa), serta strategi branding proyek.
+---
 
-* Arsitektur & Scaffolding: Struktur kode dan logika state management disusun menggunakan GitHub Copilot, memungkinkan transisi cepat dari ide menjadi kode fungsional.
+## Fitur utama
 
-* Optimasi & Deployment: Proses penyempurnaan logika tingkat lanjut dan integrasi sistem didukung oleh teknologi Google Antigravity, memastikan aplikasi berjalan ringan, responsif, dan siap untuk skalabilitas tinggi.
+| Area | Deskripsi |
+|------|-----------|
+| **Lobby** | Nama pemain, bahasa (ID/EN), mode duel/latihan, kurikulum, skor (lembut/kompetitif), timer opsional, aksesibilitas |
+| **Duel** | Layar 50/50 horizontal; Pemain 1 diputar 180°; momentum ±5 (tug-of-war) |
+| **Latihan** | Solo tanpa UI momentum; tetap ada progres level & soal adaptif |
+| **Soal adaptif** | Generator algoritmik + bias ~70% ke tag skill yang lemah (dari riwayat sesi) |
+| **Kurikulum** | Preset: Kelas 3 (perkalian 1–9), Kelas 4 (penjumlahan 2 digit), atau bebas |
+| **Keypad kustom** | Tanpa keyboard OS; anti-spam & leading-zero guard |
+| **Feedback** | Pesan motivasi growth mindset (quotes saat ini **Bahasa Indonesia** — lihat [F4.2](./POST-ROADMAP.md)) |
+| **Ekspor sesi** | Unduh JSON event belajar dari duel/latihan (untuk guru) |
+| **Dashboard guru** | `/teacher` — unggah JSON ekspor atau muat dari cloud (opsional) |
+| **Tantangan async** | `/challenge/:seed` — 10 soal deterministik; bandingkan skor via perangkat yang sama atau impor/ekspor JSON |
+| **PWA** | Instal dari browser; cache aset via Workbox |
+| **Aksesibilitas** | Kontras tinggi, font dyslexia-friendly, hormati `prefers-reduced-motion` |
 
-## Fitur Utama
-* Dual-Player Split Screen: Layar terbagi 50/50 secara horizontal dengan orientasi berlawanan (Player 1 diputar 180°).
+---
 
-* Mekanik Tug-of-War: Sistem skor berbasis momentum (±5). Dinamika kompetisi yang visual dan mendebarkan.
+## Rute aplikasi
 
-* Infinite Progressive Difficulty: Soal matematika yang dihasilkan secara algoritmik, mulai dari penjumlahan sederhana hingga operasi kompleks multi-tahap.
+| Path | Fungsi |
+|------|--------|
+| `/` | Lobby → duel atau latihan |
+| `/teacher` | Ringkasan statistik dari file JSON sesi (atau Supabase jika dikonfigurasi) |
+| `/challenge/:seed` | Mode tantangan berbasis seed (link bisa dibagikan) |
 
-* Custom Keypad & Anti-Spam: Input angka kustom untuk mencegah munculnya keyboard bawaan OS, dilengkapi dengan proteksi anti-spam dan leading-zero guard.
+---
 
-* Growth Mindset Feedback: Pesan motivasi dinamis dalam bahasa Indonesia untuk mendorong resiliensi pemain.
+## Mode tantangan (async)
 
-## Tech Stack
-* Framework: Vue 3 (Composition API)
+1. Di lobby, pilih **Buat tantangan** — link `/challenge/<seed>` disalin ke clipboard.
+2. Setiap pemain membuka link yang sama, mengerjakan **10 soal identik** (seed sama).
+3. **Perangkat yang sama:** hasil disimpan di `localStorage` per seed; papan peringkat tampil otomatis setelah beberapa pemain main di browser yang sama.
+4. **Perangkat berbeda:** setelah selesai, **Ekspor hasil** → kirim file JSON ke rival → rival **Impor lawan** di layar hasil untuk membandingkan waktu dan akurasi.
 
-* Build Tool: Vite
+Tidak ada WebSocket; sinkronisasi sengaja offline-first.
 
-* Styling: Tailwind CSS
+---
 
-* Icons: Lucide Vue Next
+## Tech stack
 
-* Deployment: Netlify
+- **Vue 3** (Composition API) + **Vue Router**
+- **Vite** + **Vitest**
+- **Tailwind CSS**
+- **vue-i18n** (Indonesia & English)
+- **Lucide Vue Next**
+- **vite-plugin-pwa**
+- Deploy: **Netlify** ([`netlify.toml`](./netlify.toml))
 
-## Instalasi
-1. Clone repository:
+---
 
-```
-git clone https://github.com/username/baku-hitung.git
+## Instalasi & pengembangan
+
+**Persyaratan:** Node.js 20+ (sama dengan CI).
+
+```bash
+git clone https://github.com/kahlilzulmi/baku-hitung.git
 cd baku-hitung
-```
-
-2. Install dependensi & Jalankan:
-
-```
-npm install 
+npm install
 npm run dev
 ```
 
-📄 Lisensi
-Proyek ini dilisensikan di bawah MIT License.
+| Perintah | Kegunaan |
+|----------|----------|
+| `npm run dev` | Server pengembangan (host terbuka untuk uji di tablet/HP di LAN) |
+| `npm run build` | Build produksi |
+| `npm run preview` | Preview build lokal |
+| `npm test` | Unit test (domain engine) |
+
+Ingin berkontribusi? Lihat **[CONTRIBUTING.md](./CONTRIBUTING.md)**. Backlog lanjutan: **[POST-ROADMAP.md](./POST-ROADMAP.md)**.
+
+---
+
+## Variabel lingkungan (opsional)
+
+Tanpa file `.env`, aplikasi **sepenuhnya offline** (event belajar di `sessionStorage`).
+
+Untuk sinkronisasi cloud ke Supabase, salin [`.env.example`](./.env.example) ke `.env` dan isi:
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Tabel yang diharapkan (ringkas):
+
+- `sessions` — `id`, `started_at`, `play_mode`, `curriculum_id`, `scoring_mode`
+- `events` — `session_id`, `player`, `level`, `question_text`, `expected_answer`, `skill_tags`, `response_ms`, `correct`, `attempt`, `created_at`
+
+Setelah deploy, dashboard `/teacher` menampilkan opsi muat sesi berdasarkan `sessionId` (UUID dari ekspor JSON).
+
+---
+
+## Ekspor data belajar
+
+Selama duel atau latihan, setiap jawaban dicatat sebagai `LearningEvent` (maks. 500 event di `sessionStorage`).
+
+- Tombol **Ekspor sesi** mengunduh JSON berisi `sessionId`, metadata, dan array event.
+- Guru membuka **`/teacher`** → unggah file tersebut untuk melihat agregat (akurasi per skill, waktu respons, dll.).
+
+> **Catatan:** Beberapa filter per-`sessionId` masih dalam perbaikan — lihat [F1.x](./POST-ROADMAP.md) di backlog.
+
+---
+
+## PWA
+
+Setelah `npm run build` dan deploy, pengguna dapat **Add to Home Screen** / instal aplikasi. Manifest: nama `BakuHitung`, locale default `id`, theme biru (`#2563eb`).
+
+---
+
+## Human–AI collaboration
+
+Proyek ini juga dokumentasi kolaborasi manusia–AI dalam pengembangan modern:
+
+- **Brainstorming & konsep** — Kahlil Gibran Al Zulmi × Google Gemini (mekanik tug-of-war, tingkat kesulitan inklusif, branding).
+- **Arsitektur & scaffolding** — struktur kode & state dengan GitHub Copilot.
+- **Optimasi & integrasi** — penyempurnaan lanjutan dengan bantuan alat AI (Antigravity dll.).
+
+Kontributor manusia dan AI dipersilakan; lihat panduan transparansi di [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+---
+
+## Lisensi
+
+Proyek ini dilisensikan di bawah [MIT License](./LICENSE).
+
+Copyright © 2026 Kahlil Gibran Al Zulmi
