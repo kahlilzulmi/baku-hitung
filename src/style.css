@@ -14,8 +14,109 @@ html, body {
 #app {
   height: 100vh;
   height: 100dvh;
-  width: 100vw;
+  width: 100%;
+  min-height: 100dvh;
   overflow: hidden;
+}
+
+/* Fullscreen: fill the display (dvh alone can leave gaps on some mobile browsers) */
+html:fullscreen,
+html:-webkit-full-screen {
+  height: 100%;
+  width: 100%;
+}
+
+html:fullscreen body,
+html:-webkit-full-screen body {
+  height: 100%;
+  width: 100%;
+}
+
+html:fullscreen #app,
+html:-webkit-full-screen #app {
+  height: 100%;
+  width: 100%;
+}
+
+/* Multi-touch keypads (duel): opt out of global touch-action: none */
+html:not(.page-scroll) [data-player-panel],
+html:not(.page-scroll) .numeric-keypad,
+html:not(.page-scroll) .numeric-keypad .keypad-btn,
+html:not(.page-scroll) .duel-center-bar,
+html:not(.page-scroll) .duel-center-bar button {
+  touch-action: manipulation;
+}
+
+/* Safe area + gap from center toolbar (16px + system insets) */
+.player-panel--p1 {
+  padding-top: 8px;
+  padding-bottom: max(16px, env(safe-area-inset-top, 0px));
+}
+
+.player-panel--p2 {
+  padding-top: 8px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+/* Shift duel question + keypad toward center bar (works with P1 180° rotation) */
+[data-panel="p1"] .player-panel__duel-play,
+[data-panel="p2"] .player-panel__duel-play {
+  transform: translateY(-0.75rem);
+}
+
+/* Duel layout: zone overlays bleed into half of center bar (matches h-11 bar) */
+.duel-shell {
+  --duel-center-bar-h: 2.75rem;
+  --duel-center-half: calc(var(--duel-center-bar-h) / 2);
+  height: 100%;
+  min-height: 100dvh;
+  min-height: 100svh;
+  width: 100%;
+}
+
+.duel-zone {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.duel-zone__overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.duel-zone__overlay--p1 {
+  top: 0;
+  bottom: calc(-1 * var(--duel-center-half));
+}
+
+.duel-zone__overlay--p2 {
+  top: calc(-1 * var(--duel-center-half));
+  bottom: 0;
+}
+
+.duel-zone__overlay-inner {
+  display: flex;
+  width: 100%;
+  min-height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(180deg);
+}
+
+.player-panel--practice {
+  padding-top: 0.25rem;
 }
 
 /* Scrollable routes (lobby, etc.) — overrides global touch-action: none */

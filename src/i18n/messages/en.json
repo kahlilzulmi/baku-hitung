@@ -10,7 +10,9 @@
   },
   "duel": {
     "toolbar": "Game controls",
-    "holdToActivate": "Hold to activate"
+    "holdToActivate": "Hold to activate",
+    "pauseMenu": "Pause menu",
+    "closeMenu": "Close menu"
   },
   "timerMs": "{ms} ms",
   "timerLast": "Last: {ms} ms",
@@ -49,7 +51,9 @@
     "question": "Question: {text}",
     "answerEmpty": "Answer empty",
     "answerValue": "Answer: {value}",
-    "momentum": "Momentum: {score}"
+    "momentum": "Momentum: {score}",
+    "momentumP1": "Player 1 momentum: {score}",
+    "momentumP2": "Player 2 momentum: {score}"
   },
   "challenge": {
     "title": "Async challenge",

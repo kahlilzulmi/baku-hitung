@@ -1,26 +1,31 @@
 <template>
-  <div class="relative h-screen w-screen overflow-hidden bg-blue-100">
-    <button
-      type="button"
-      class="absolute top-2 left-2 z-40 px-2 py-1 text-[10px] font-bold rounded-full
-             bg-white/90 text-gray-700 shadow border border-gray-300"
-      @click="$emit('exit')"
+  <div class="flex flex-col h-dvh w-screen overflow-hidden bg-blue-100">
+    <header
+      class="practice-chrome flex-shrink-0 z-10 flex items-center justify-between gap-2
+             px-3 py-2 border-b border-blue-200/70 bg-blue-100
+             pt-[max(0.5rem,env(safe-area-inset-top))]"
     >
-      {{ t('backToLobby') }}
-    </button>
-
-    <div class="absolute top-2 right-2 z-40 flex items-center gap-1.5">
-      <FullscreenButton />
       <button
         type="button"
-        class="px-2 py-1 text-[10px] font-bold rounded-full
+        class="px-2.5 py-1 text-[10px] font-bold rounded-full
                bg-white/90 text-gray-700 shadow border border-gray-300"
-        :title="t('exportSession')"
-        @click="exportSession"
+        @click="$emit('exit')"
       >
-        {{ t('exportSession') }}
+        {{ t('backToLobby') }}
       </button>
-    </div>
+      <div class="flex items-center gap-1.5">
+        <FullscreenButton />
+        <button
+          type="button"
+          class="px-2 py-1 text-[10px] font-bold rounded-full
+                 bg-white/90 text-gray-700 shadow border border-gray-300"
+          :title="t('exportSession')"
+          @click="exportSession"
+        >
+          {{ t('exportSession') }}
+        </button>
+      </div>
+    </header>
 
     <PlayerPanel
       :player="1"
@@ -38,7 +43,7 @@
       :show-timer="showTimer"
       :elapsed-ms="questionElapsedMs"
       :last-response-ms="lastResponseMs"
-      class="h-full"
+      class="flex-1 min-h-0"
       @digit="(d) => appendDigit(1, d)"
       @backspace="backspace(1)"
     />

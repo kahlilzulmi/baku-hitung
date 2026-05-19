@@ -3,7 +3,7 @@
     type="button"
     class="relative overflow-hidden rounded-full border border-gray-300 bg-white/95
            text-gray-700 shadow font-bold select-none touch-none
-           disabled:opacity-40"
+           disabled:opacity-40 touch-manipulation"
     :class="[sizeClass, { 'ring-2 ring-blue-400': holding }]"
     :disabled="disabled"
     :aria-label="ariaLabel"
@@ -35,7 +35,7 @@ const props = defineProps({
   ariaLabel: { type: String, default: '' },
   holdMs: { type: Number, default: HOLD_ACTIVATE_MS },
   disabled: { type: Boolean, default: false },
-  size: { type: String, default: 'sm' }, // sm | icon
+  size: { type: String, default: 'sm' }, // sm | icon | pause
 })
 
 const emit = defineEmits(['activate'])
@@ -48,9 +48,11 @@ const progress = ref(0)
 let rafId = null
 let startedAt = 0
 
-const sizeClass = computed(() =>
-  props.size === 'icon' ? 'h-8 w-8 text-[10px]' : 'px-2.5 py-0.5 text-[10px] uppercase tracking-wide',
-)
+const sizeClass = computed(() => {
+  if (props.size === 'pause') return 'h-9 w-9 p-0'
+  if (props.size === 'icon') return 'h-8 w-8 text-[10px]'
+  return 'px-2.5 py-0.5 text-[10px] uppercase tracking-wide'
+})
 
 const holdTitle = computed(() => {
   const hint = t('duel.holdToActivate')

@@ -149,6 +149,8 @@ export function useGameState(session) {
   }
 
   function handleCorrect(player) {
+    if (frozen.value) return
+
     const input = player === 1 ? input1.value : input2.value
     const responseMs = Math.max(0, Date.now() - questionShownAt)
     lastResponseMs.value = responseMs

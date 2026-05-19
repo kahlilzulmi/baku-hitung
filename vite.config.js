@@ -36,6 +36,15 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    host: true,
+    // ngrok, Cloudflare Tunnel, localtunnel, etc.
+    allowedHosts: true,
+  },
+  preview: {
+    host: true,
+    allowedHosts: true,
+  },
   test: {
     environment: 'node',
   },

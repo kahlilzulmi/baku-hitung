@@ -10,7 +10,9 @@
   },
   "duel": {
     "toolbar": "Kontrol permainan",
-    "holdToActivate": "Tahan untuk mengaktifkan"
+    "holdToActivate": "Tahan untuk mengaktifkan",
+    "pauseMenu": "Menu jeda",
+    "closeMenu": "Tutup menu"
   },
   "timerMs": "{ms} ms",
   "timerLast": "Terakhir: {ms} ms",
@@ -49,7 +51,9 @@
     "question": "Soal: {text}",
     "answerEmpty": "Jawaban kosong",
     "answerValue": "Jawaban: {value}",
-    "momentum": "Momentum: {score}"
+    "momentum": "Momentum: {score}",
+    "momentumP1": "Momentum pemain 1: {score}",
+    "momentumP2": "Momentum pemain 2: {score}"
   },
   "challenge": {
     "title": "Tantangan async",
