@@ -1,116 +1,125 @@
 # BakuHitung — Engineering Roadmap
 
-Incremental delivery only. **One milestone (or sub-milestone) per branch → commit → push → verify deploy.** Do not batch multiple milestones in one PR.
+**Status (May 2026):** Phases 0–4 are **implemented**. Treat this file as the **completed baseline**. New work → [POST-ROADMAP.md](./POST-ROADMAP.md) (one item per commit).
 
 ---
 
-## How to work (required)
+## Delivery rules (still required)
 
-1. Pick **exactly one** unchecked item below (start at the top of your chosen phase).
-2. Create a branch: `feat/<short-name>` or `chore/<short-name>`.
-3. Implement **only** that item. Keep the diff small enough to review in ~10 minutes.
-4. Run locally:
+1. Pick **exactly one** unchecked item in [POST-ROADMAP.md](./POST-ROADMAP.md).
+2. Branch: `feat/<short-name>` or `fix/<short-name>`.
+3. Implement only that item; keep the PR reviewable in ~10 minutes.
+4. Run:
    ```bash
    npm install
    npm run build
-   npm test          # after M0.2 exists; skip only before tests are added
+   npm test
    ```
-5. Commit with [Conventional Commits](https://www.conventionalcommits.org/):  
-   `feat: …` · `fix: …` · `chore: …` · `test: …` · `docs: …`
-6. Push and open a PR (or push to `main` if solo — still **one milestone per push**).
-7. Confirm Netlify preview/production build is green.
-8. Check the box in this file in a **follow-up** `docs: mark Mx.x done` commit, or include `docs(roadmap): complete Mx.x` in the same PR if your team prefers.
+5. Commit with [Conventional Commits](https://www.conventionalcommits.org/) and reference the ID (e.g. `fix: filter export by sessionId (F1.1)`).
+6. Push → verify Netlify build → check the box in POST-ROADMAP.
 
-**Rule:** If the item feels too big, split it — do not merge a “Phase 1” megacommit.
+**Do not** batch phases or multiple IDs in one merge (see [Audit notes](#audit-notes-may-2026)).
 
 ---
 
-## Phase 0 — Foundation
+## Completed — Phase 0 (Foundation)
 
 | ID | Task | Done |
 |----|------|:----:|
-| **M0.1** | Extract `generateQuestion` (+ helpers) to `src/domain/questionEngine.js`; `useGameState` imports it. No behavior change. | [x] |
-| **M0.2** | Add Vitest + `npm test`; tests for level bands 1–3, 4–7, 8–12, 13+ (smoke: valid `{ text, answer }`, answer is numeric string). | [x] |
-| **M0.3** | Extract `MOMENTUM_WIN`, freeze duration (1500ms) to `src/config/gameDefaults.js`. | [x] |
-| **M0.4** | Extract winner/loser quotes to `src/config/quotes.id.js`. | [x] |
-| **M0.5** | Add GitHub Action: `npm ci` → `npm run build` → `npm test` on push/PR. | [x] |
-| **M0.6** | Add `vue-i18n` (or minimal `messages/id.json` loader); move overlay strings (`Round Won!`, etc.) to Indonesian. | [x] |
+| **M0.1** | Extract `generateQuestion` to `src/domain/questionEngine.js` | [x] |
+| **M0.2** | Vitest + `npm test`; level-band smoke tests | [x] |
+| **M0.3** | `MOMENTUM_WIN`, freeze ms → `src/config/gameDefaults.js` | [x] |
+| **M0.4** | Quotes → `src/config/quotes.id.js` | [x] |
+| **M0.5** | GitHub Action: `npm ci` → build → test | [x] |
+| **M0.6** | `vue-i18n`; overlay strings localized | [x] |
 
 ---
 
-## Phase 1 — Learning intelligence (offline-first)
+## Completed — Phase 1 (Learning intelligence)
+
+| ID | Task | Done | Audit |
+|----|------|:----:|-------|
+| **M1.1** | `LearningEvent` in `src/domain/learningEvent.js` | [x] | OK |
+| **M1.2** | Emit on correct answer | [x] | OK |
+| **M1.3** | Emit on wrong same-length answer | [x] | OK |
+| **M1.4** | `sessionStorage`, cap 500 | [x] | OK |
+| **M1.5** | `skillTags` on questions | [x] | OK |
+| **M1.6** | Export session JSON from UI | [x] | **Partial** — see F1.1 |
+| **M1.7** | 70% weak-tag bias in `pickQuestion` | [x] | **Partial** — see F1.1 |
+
+---
+
+## Completed — Phase 2 (Pedagogy & game modes)
 
 | ID | Task | Done |
 |----|------|:----:|
-| **M1.1** | Define `LearningEvent` shape in `src/domain/learningEvent.js` (JSDoc or `.ts` if you add TS later). | [x] |
-| **M1.2** | Emit event on correct answer (sessionId, player, level, question, responseMs, `correct: true`). | [x] |
-| **M1.3** | Emit event on wrong same-length answer (`correct: false`). | [x] |
-| **M1.4** | Persist events to `sessionStorage`; cap list (e.g. last 500) to avoid quota issues. | [x] |
-| **M1.5** | Add `skillTags` to generated questions (e.g. `add`, `subtract`, `multiply`, `divide`, `multi-step`). | [x] |
-| **M1.6** | “Export session” button in UI → download `baku-hitung-session-<date>.json`. | [x] |
-| **M1.7** | Weighted question pick: 70% from configurable weak tags, 30% random (config in `gameDefaults.js`). | [x] |
+| **M2.1** | `LobbyView` — names, locale, start duel/practice | [x] |
+| **M2.2** | Preset: Kelas 3 perkalian 1–9 | [x] |
+| **M2.3** | Practice mode (solo, no momentum UI) | [x] |
+| **M2.4** | `responseMs` + optional timer UI | [x] |
+| **M2.5** | Gentle vs competitive scoring | [x] |
+| **M2.6** | Preset: Kelas 4 penjumlahan 2 digit | [x] |
 
 ---
 
-## Phase 2 — Pedagogy & game modes
+## Completed — Phase 3 (Classroom & scale)
+
+| ID | Task | Done | Audit |
+|----|------|:----:|-------|
+| **M3.1** | PWA (`vite-plugin-pwa`) | [x] | OK |
+| **M3.2** | Optional Supabase sync (env-gated) | [x] | **Partial** — see F3.1 |
+| **M3.3** | `/teacher` dashboard | [x] | OK |
+| **M3.4** | Async challenge link + seeded questions | [x] | **Partial** — manual rival import |
+
+---
+
+## Completed — Phase 4 (Inclusion)
 
 | ID | Task | Done |
 |----|------|:----:|
-| **M2.1** | `LobbyView`: player names (optional), language toggle, “Start duel”. | [x] |
-| **M2.2** | Curriculum preset: “Kelas 3 — perkalian 1–9” maps to level band + tag filter (one preset only). | [x] |
-| **M2.3** | Practice mode: single player, no momentum UI; same question engine. | [x] |
-| **M2.4** | Per-question `responseMs` + optional subtle timer display (config flag, default off). | [x] |
-| **M2.5** | Game mode toggle: `gentle` (current) vs `competitive` (wrong answer −1 momentum). | [x] |
-| **M2.6** | Second curriculum preset (e.g. “Kelas 4 — penjumlahan 2 digit”). | [x] |
+| **M4.1** | `prefers-reduced-motion` — no shake / quote pulse | [x] |
+| **M4.2** | `aria-live` + keypad labels | [x] |
+| **M4.3** | High-contrast theme | [x] |
+| **M4.4** | Dyslexia-friendly font toggle | [x] |
 
 ---
 
-## Phase 3 — Classroom & scale
+## Audit notes (May 2026)
 
-| ID | Task | Done |
-|----|------|:----:|
-| **M3.1** | PWA: `vite-plugin-pwa`, offline shell, icons. | [x] |
-| **M3.2** | Optional Supabase/Firebase: anonymous `sessions` + `events` insert (env-gated). | [x] |
-| **M3.3** | `/teacher` route: read-only aggregates from exported JSON (no backend) OR from API if M3.2 done. | [x] |
-| **M3.4** | Async challenge link: URL seed → same question sequence for two devices (compare times locally). | [x] |
+| Check | Result |
+|-------|--------|
+| `npm test` / `npm run build` | Pass |
+| Features vs checklist | ~24/25 full; 3 partial (export scope, Supabase ops, challenge compare) |
+| Git history vs “one ID per PR” | **Not followed** — phases landed as bulk commits; use POST-ROADMAP for granular fixes |
+| README | Out of date — see **F4.1** |
 
----
-
-## Phase 4 — Inclusion & polish
-
-| ID | Task | Done |
-|----|------|:----:|
-| **M4.1** | `prefers-reduced-motion`: disable shake + quote pulse. | [x] |
-| **M4.2** | `aria-live` on question/answer; keypad `aria-label`s audit. | [x] |
-| **M4.3** | High-contrast theme toggle. | [x] |
-| **M4.4** | Optional dyslexia-friendly font toggle. | [x] |
+Full findings and file map: [POST-ROADMAP.md](./POST-ROADMAP.md).
 
 ---
 
-## Suggested order
+## Architecture (current)
 
 ```
-M0.1 → M0.2 → M0.3 → M0.4 → M0.5 → M0.6
-  → M1.1 → … → M1.7
-  → M2.1 → …
+src/
+  config/           gameDefaults, curriculumPresets, quotes.id
+  domain/           questionEngine, learningEvent, learningStore,
+                    teacherAggregates, challengeEngine, challengeStore
+  composables/      useGameState, useA11yPrefs, useChallengeState, …
+  views/            GameView, LobbyView, DuelView, PracticeView,
+                    TeacherView, ChallengeView, …
+  components/       PlayerPanel, DuelCenterBar, GameFeedbackOverlay, …
+  services/         cloudSync.js (optional Supabase)
+  router/           /, /teacher, /challenge/:seed
 ```
 
-Skip ahead only if a dependency is already done (e.g. don’t do M1.7 before M1.5).
+**Ed-tech goal:** face-to-face duel + measurable practice (events, skill tags, teacher export) without losing single-device play.
 
 ---
 
-## PR checklist (copy into description)
+## PR checklist
 
-- [ ] Single roadmap ID (e.g. **M0.2**)
+- [ ] Single POST-ROADMAP ID (e.g. **F1.1**)
 - [ ] `npm run build` passes
-- [ ] `npm test` passes (when applicable)
+- [ ] `npm test` passes
 - [ ] No unrelated refactors
-- [ ] README updated only if behavior/user-facing flow changed
-
----
-
-## Context
-
-BakuHitung is a split-screen, local two-player mental math duel (tug-of-war momentum). Core logic lives in `src/composables/useGameState.js` and `src/components/PlayerPanel.vue`. See [README.md](./README.md) for product overview.
-
-**Ed-tech goal:** measurable practice (events + skill tags) and teacher-friendly sessions, without losing the face-to-face, one-device experience.
+- [ ] README / schema docs updated if user-facing or ops changed

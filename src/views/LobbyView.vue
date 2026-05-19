@@ -160,6 +160,7 @@ import { createChallengeSeed } from '../domain/challengeEngine.js'
 import { CURRICULUM_PRESETS } from '../config/curriculumPresets.js'
 import { SHOW_QUESTION_TIMER } from '../config/gameDefaults.js'
 import { useA11yPrefs } from '../composables/useA11yPrefs.js'
+import { useFullscreen } from '../composables/useFullscreen.js'
 import FullscreenButton from '../components/FullscreenButton.vue'
 
 const emit = defineEmits(['start'])
@@ -167,6 +168,7 @@ const emit = defineEmits(['start'])
 const router = useRouter()
 const { t, locale } = useI18n()
 const { highContrast, dyslexiaFont, prefersReducedMotion } = useA11yPrefs()
+const { isSupported: isFullscreenSupported, enter: enterFullscreen } = useFullscreen()
 const challengeLinkLabel = ref('')
 const locales = ['id', 'en']
 
@@ -202,6 +204,9 @@ function createChallenge() {
 }
 
 function onSubmit() {
+  if (playMode.value === 'duel' && isFullscreenSupported.value) {
+    enterFullscreen().catch(() => {})
+  }
   emit('start', {
     playMode: playMode.value,
     scoringMode: scoringMode.value,
