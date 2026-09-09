@@ -19,6 +19,12 @@
       :momentum="momentum"
     />
 
+    <MemoryWindowBar
+      v-if="practiceMode"
+      class="mt-1.5 flex-shrink-0"
+      :elapsed-ms="elapsedMs"
+    />
+
     <div
       v-if="practiceMode"
       class="flex h-32 flex-col items-center justify-start gap-2 pt-3"
@@ -82,6 +88,11 @@
         {{ question.text }} =
       </p>
 
+      <MemoryWindowBar
+        class="w-full max-w-[220px]"
+        :elapsed-ms="elapsedMs"
+      />
+
       <div
         class="answer-box rounded-xl text-center px-6 py-1 text-2xl font-extrabold tracking-widest
                min-w-[110px] shadow-inner"
@@ -126,6 +137,7 @@
       :round-winner="roundWinner"
       :current-quote="currentQuote"
       :opponent-name="opponentName"
+      :last-was-critical="lastWasCritical"
     />
   </div>
 </template>
@@ -135,6 +147,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import NumericKeypad from './NumericKeypad.vue'
 import MomentumIndicator from './MomentumIndicator.vue'
+import MemoryWindowBar from './MemoryWindowBar.vue'
 import GameFeedbackOverlay from './GameFeedbackOverlay.vue'
 import { useA11yPrefs } from '../composables/useA11yPrefs.js'
 
@@ -159,6 +172,7 @@ const props = defineProps({
   showTimer:       { type: Boolean, default: false },
   elapsedMs:       { type: Number,  default: 0 },
   lastResponseMs:  { type: Number,  default: null },
+  lastWasCritical: { type: Boolean, default: false },
   opponentName:    { type: String,  default: '' },
   duelOverlayExternal: { type: Boolean, default: false },
 })

@@ -260,3 +260,28 @@ html.theme-high-contrast .momentum-dot-filled-p2 {
 html.theme-high-contrast .momentum-dot-empty {
   border-color: #fff !important;
 }
+
+html.theme-high-contrast .memory-window-track--live {
+  background: #1a1a1a !important;
+  border: 1px solid #fff;
+}
+
+html.theme-high-contrast .memory-window-track--gone {
+  background: #1a1a1a !important;
+  border: 1px solid #f87171;
+}
+
+html.theme-high-contrast .memory-window-fill--live {
+  background: #facc15 !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+html.theme-high-contrast .memory-window-fill--gone {
+  background: #f87171 !important;
+  opacity: 1 !important;
+}
+
+html.reduce-motion .memory-window-fill--glow {
+  animation: none !important;
+}

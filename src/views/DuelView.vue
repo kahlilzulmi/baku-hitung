@@ -19,6 +19,7 @@
           :show-timer="showTimer"
           :elapsed-ms="questionElapsedMs"
           :last-response-ms="lastResponseMs"
+          :last-was-critical="lastWasCritical"
           :opponent-name="player2Display"
           duel-overlay-external
           @digit="(d) => appendDigit(1, d)"
@@ -35,6 +36,7 @@
         :round-winner="roundWinner"
         :current-quote="currentQuote"
         :opponent-name="player2Display"
+        :last-was-critical="lastWasCritical"
       />
     </div>
 
@@ -64,6 +66,7 @@
           :show-timer="showTimer"
           :elapsed-ms="questionElapsedMs"
           :last-response-ms="lastResponseMs"
+          :last-was-critical="lastWasCritical"
           :opponent-name="player1Display"
           duel-overlay-external
           @digit="(d) => appendDigit(2, d)"
@@ -80,13 +83,14 @@
         :round-winner="roundWinner"
         :current-quote="currentQuote"
         :opponent-name="player1Display"
+        :last-was-critical="lastWasCritical"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PlayerPanel from '../components/PlayerPanel.vue'
 import GameFeedbackOverlay from '../components/GameFeedbackOverlay.vue'
@@ -126,9 +130,15 @@ const {
   showTimer,
   questionElapsedMs,
   lastResponseMs,
+  lastWasCritical,
+  setPaused,
   appendDigit,
   backspace,
 } = useGameState(props.session)
+
+watch(duelPaused, (value) => {
+  setPaused(value)
+})
 
 function duelZoneOverlay(player) {
   if (!frozen.value) return false

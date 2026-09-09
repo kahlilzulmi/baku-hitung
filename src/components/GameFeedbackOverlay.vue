@@ -40,7 +40,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Trophy, CheckCircle, Flame, PauseCircle } from 'lucide-vue-next'
+import { Trophy, CheckCircle, Flame, PauseCircle, Zap } from 'lucide-vue-next'
 import { useA11yPrefs } from '../composables/useA11yPrefs.js'
 
 const props = defineProps({
@@ -52,6 +52,7 @@ const props = defineProps({
   roundWinner:    { type: Number,  default: null },
   currentQuote:   { type: Object,  default: null },
   opponentName:   { type: String,  default: '' },
+  lastWasCritical: { type: Boolean, default: false },
   /** practice | panel | duel-p1 | duel-p2 */
   placement:      { type: String,  default: 'panel' },
 })
@@ -94,7 +95,16 @@ const innerClass = computed(() =>
 const bgClass = computed(() => {
   if (isRoundWon.value) return 'bg-green-500/95 text-white'
   if (isRoundLost.value) return 'bg-gray-900/95 text-white'
+  if (isScoredMe.value && props.lastWasCritical) return 'bg-cyan-500/95 text-white'
   if (isScoredMe.value) return 'bg-green-400/95 text-white'
+  if (
+    props.frozen
+    && props.scoredPlayer !== null
+    && props.scoredPlayer !== props.player
+    && props.lastWasCritical
+  ) {
+    return 'bg-orange-600/95 text-white'
+  }
   const tint = isRed.value ? 'bg-red-200/90 text-red-900' : 'bg-blue-200/90 text-blue-900'
   if (isDuelZone.value) return tint
   return isRed.value && !props.practiceMode
@@ -105,7 +115,7 @@ const bgClass = computed(() => {
 const iconComponent = computed(() => {
   if (isRoundWon.value) return Trophy
   if (isRoundLost.value) return Flame
-  if (isScoredMe.value) return CheckCircle
+  if (isScoredMe.value) return props.lastWasCritical ? Zap : CheckCircle
   return PauseCircle
 })
 
@@ -114,8 +124,11 @@ const title = computed(() => {
     return props.practiceMode ? t('overlay.levelUp') : t('overlay.roundWon')
   }
   if (isRoundLost.value) return t('overlay.roundLost')
-  if (isScoredMe.value) return t('overlay.correct')
+  if (isScoredMe.value) {
+    return props.lastWasCritical ? t('overlay.criticalHit') : t('overlay.correct')
+  }
   if (props.frozen && props.scoredPlayer !== null && props.scoredPlayer !== props.player) {
+    if (props.lastWasCritical) return t('overlay.criticalDamage')
     if (props.opponentName) {
       return t('overlay.opponentScoredNamed', { name: props.opponentName })
     }

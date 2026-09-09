@@ -53,7 +53,9 @@
     "answerValue": "Jawaban: {value}",
     "momentum": "Momentum: {score}",
     "momentumP1": "Momentum pemain 1: {score}",
-    "momentumP2": "Momentum pemain 2: {score}"
+    "momentumP2": "Momentum pemain 2: {score}",
+    "memoryWindow": "Jendela memori: {remaining} ms tersisa",
+    "memoryWindowClosed": "Jendela memori tertutup — menghitung manual"
   },
   "challenge": {
     "title": "Tantangan async",
@@ -104,6 +106,8 @@
     "roundWon": "Ronde Dimenangkan!",
     "roundLost": "Ronde Kalah...",
     "correct": "Benar!",
+    "criticalHit": "Critical Hit!",
+    "criticalDamage": "Critical Damage!",
     "opponentScored": "Pemain {n} Mencetak Skor!",
     "opponentScoredNamed": "{name} Mencetak Skor!",
     "levelUp": "Naik tingkat!"

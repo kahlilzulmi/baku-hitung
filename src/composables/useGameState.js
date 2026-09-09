@@ -1,6 +1,7 @@
 import { ref, onUnmounted } from 'vue'
 import { pickQuestion, clampLevel } from '../domain/questionEngine.js'
 import { MOMENTUM_WIN, ROUND_FREEZE_MS } from '../config/gameDefaults.js'
+import { isCriticalHit, momentumDelta } from '../domain/memoryWindow.js'
 import { winnerQuotes, loserQuotes, pickRandom } from '../config/quotes.id.js'
 import { appendLearningEvent, deriveWeakSkillTags, loadLearningEvents } from '../domain/learningStore.js'
 import { getCurriculumPreset } from '../config/curriculumPresets.js'
@@ -57,10 +58,14 @@ export function useGameState(session) {
   const shake2 = ref(false)
 
   const lastResponseMs = ref(null)
+  const lastWasCritical = ref(false)
   const questionElapsedMs = ref(0)
 
-  let questionShownAt = Date.now()
-  let timerHandle = null
+  let questionShownAt = performance.now()
+  let pausedElapsedMs = 0
+  let clockPaused = false
+  let pendingNewQuestion = false
+  let rafId = null
 
   function effectiveLevel() {
     return clampLevel(level.value, curriculum?.levelMin, curriculum?.levelMax)
@@ -77,30 +82,64 @@ export function useGameState(session) {
     pickQuestion(effectiveLevel(), [], pickOptions),
   )
 
-  function startQuestionTimer() {
-    if (!showTimer) return
-    stopQuestionTimer()
-    questionElapsedMs.value = 0
-    timerHandle = setInterval(() => {
-      questionElapsedMs.value = Math.max(0, Date.now() - questionShownAt)
-    }, 100)
+  function elapsedNow() {
+    if (clockPaused) return pausedElapsedMs
+    return Math.max(0, performance.now() - questionShownAt)
   }
 
-  function stopQuestionTimer() {
-    if (timerHandle != null) {
-      clearInterval(timerHandle)
-      timerHandle = null
+  function markQuestionShown() {
+    pausedElapsedMs = 0
+    questionShownAt = performance.now()
+    questionElapsedMs.value = 0
+  }
+
+  function startClockLoop() {
+    stopClockLoop()
+    const tick = () => {
+      if (!clockPaused && !frozen.value) {
+        questionElapsedMs.value = Math.round(elapsedNow())
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+  }
+
+  function stopClockLoop() {
+    if (rafId != null) {
+      cancelAnimationFrame(rafId)
+      rafId = null
+    }
+  }
+
+  /**
+   * Freeze/unfreeze the memory-window clock (duel pause menu).
+   * @param {boolean} value
+   */
+  function setPaused(value) {
+    if (value === clockPaused) return
+    if (value) {
+      pausedElapsedMs = elapsedNow()
+      clockPaused = true
+      questionElapsedMs.value = Math.round(pausedElapsedMs)
+    } else {
+      questionShownAt = performance.now() - pausedElapsedMs
+      clockPaused = false
+      if (pendingNewQuestion) newQuestion()
     }
   }
 
   function nextQuestion() {
     const weakTags = deriveWeakSkillTags(loadLearningEvents())
     currentQuestion.value = pickQuestion(effectiveLevel(), weakTags, pickOptions)
-    questionShownAt = Date.now()
-    startQuestionTimer()
+    markQuestionShown()
   }
 
   function newQuestion() {
+    if (clockPaused) {
+      pendingNewQuestion = true
+      return
+    }
+    pendingNewQuestion = false
     nextQuestion()
     input1.value = ''
     input2.value = ''
@@ -108,9 +147,10 @@ export function useGameState(session) {
     scoredPlayer.value = null
     currentQuote.value = null
     roundWinner.value = null
+    lastWasCritical.value = false
   }
 
-  startQuestionTimer()
+  startClockLoop()
 
   function recordEvent(player, input, correct, responseMs) {
     const q = currentQuestion.value
@@ -152,16 +192,19 @@ export function useGameState(session) {
     if (frozen.value) return
 
     const input = player === 1 ? input1.value : input2.value
-    const responseMs = Math.max(0, Date.now() - questionShownAt)
+    const responseMs = Math.round(elapsedNow())
     lastResponseMs.value = responseMs
-    stopQuestionTimer()
+    lastWasCritical.value = isCriticalHit(responseMs)
+    questionElapsedMs.value = responseMs
     recordEvent(player, input, true, responseMs)
 
     frozen.value = true
     scoredPlayer.value = player
 
+    const delta = momentumDelta(responseMs)
+
     if (playMode === 'practice') {
-      practiceStreak.value++
+      practiceStreak.value += delta
       if (practiceStreak.value >= MOMENTUM_WIN) {
         roundWinner.value = 1
         practiceStreak.value = 0
@@ -177,9 +220,9 @@ export function useGameState(session) {
     }
 
     if (player === 1) {
-      momentum.value = Math.min(MOMENTUM_WIN, momentum.value + 1)
+      momentum.value = Math.min(MOMENTUM_WIN, momentum.value + delta)
     } else {
-      momentum.value = Math.max(-MOMENTUM_WIN, momentum.value - 1)
+      momentum.value = Math.max(-MOMENTUM_WIN, momentum.value - delta)
     }
 
     if (Math.abs(momentum.value) >= MOMENTUM_WIN) {
@@ -201,7 +244,7 @@ export function useGameState(session) {
 
   function handleWrong(player) {
     const input = player === 1 ? input1.value : input2.value
-    const responseMs = Math.max(0, Date.now() - questionShownAt)
+    const responseMs = Math.round(elapsedNow())
     lastResponseMs.value = responseMs
     recordEvent(player, input, false, responseMs)
     applyCompetitivePenalty(player)
@@ -209,7 +252,7 @@ export function useGameState(session) {
   }
 
   function appendDigit(player, digit) {
-    if (frozen.value) return
+    if (frozen.value || clockPaused) return
     if (playMode === 'practice' && player !== 1) return
 
     const maxLen = currentQuestion.value.answer.length + 1
@@ -227,7 +270,7 @@ export function useGameState(session) {
   }
 
   function backspace(player) {
-    if (frozen.value) return
+    if (frozen.value || clockPaused) return
     if (playMode === 'practice' && player !== 1) return
     if (player === 1) {
       input1.value = input1.value.slice(0, -1)
@@ -247,7 +290,7 @@ export function useGameState(session) {
     }
   }
 
-  onUnmounted(stopQuestionTimer)
+  onUnmounted(stopClockLoop)
 
   return {
     sessionId,
@@ -265,8 +308,10 @@ export function useGameState(session) {
     shake2,
     currentQuestion,
     lastResponseMs,
+    lastWasCritical,
     questionElapsedMs,
     showTimer,
+    setPaused,
     appendDigit,
     backspace,
   }

@@ -53,7 +53,9 @@
     "answerValue": "Answer: {value}",
     "momentum": "Momentum: {score}",
     "momentumP1": "Player 1 momentum: {score}",
-    "momentumP2": "Player 2 momentum: {score}"
+    "momentumP2": "Player 2 momentum: {score}",
+    "memoryWindow": "Memory window: {remaining} ms remaining",
+    "memoryWindowClosed": "Memory window closed — calculating"
   },
   "challenge": {
     "title": "Async challenge",
@@ -104,6 +106,8 @@
     "roundWon": "Round Won!",
     "roundLost": "Round Lost...",
     "correct": "Correct!",
+    "criticalHit": "Critical Hit!",
+    "criticalDamage": "Critical Damage!",
     "opponentScored": "Player {n} Scored!",
     "opponentScoredNamed": "{name} Scored!",
     "levelUp": "Level up!"
