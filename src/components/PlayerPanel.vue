@@ -64,7 +64,7 @@
 
     <div
       v-if="practiceMode"
-      class="relative z-0 mx-auto mt-[220px] mr-[38px] mb-[max(2rem,env(safe-area-inset-bottom,0px))]
+      class="relative z-0 mx-auto mt-[220px] mb-[max(2rem,env(safe-area-inset-bottom,0px))]
              w-full max-w-[280px] flex-shrink-0"
     >
       <NumericKeypad
