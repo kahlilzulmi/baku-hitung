@@ -150,7 +150,7 @@ Proyek ini dilisensikan di bawah [MIT License](./LICENSE).
 
 [⬆️ Back to top](#bakuhitung) · [🇮🇩 Beralih ke Bahasa Indonesia](#bahasa-indonesia)
 
-BakuHitung is an edutech experiment: a real-time **mental math duel** web app. It grew out of a practical need, helping primary school students come to love math through healthy, interactive competition.
+BakuHitung (a pun from "baku hantam" which means "brawl") is an edutech experiment: a real-time **mental math duel** web app. It grew out of a practical need, helping primary school students come to love math through healthy, interactive competition.
 
 The app uses a **split-screen** layout optimized for tablets and smartphones: two players can face off on a single device, or one player can practice solo in practice mode.
 
